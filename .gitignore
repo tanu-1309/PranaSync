@@ -1,0 +1,32 @@
+# --- patient data never goes to GitHub (privacy plan in setup report) ---
+data/raw/*
+!data/raw/.gitkeep
+data/synthetic*/
+data/*.db
+results/insights/
+results/sensitivity/
+results/validation_rows.csv
+results/summary.csv
+results/data_profile.csv
+
+# secrets and logins
+.env
+data/users.json
+data/.session_secret
+data/credentials_*.csv
+
+# python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.DS_Store
+.vscode/
+.idea/
+~$*.xlsx
+
+# per-person hand-out folders (copies of tracked files)
+team_bundles/
