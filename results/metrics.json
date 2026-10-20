@@ -1,0 +1,160 @@
+{
+  "n_patients": 120,
+  "archetypes": {
+    "control": 24,
+    "t2d": 18,
+    "htn": 18,
+    "pcos": 14,
+    "noisy_control": 14,
+    "context_only": 12,
+    "drift_no_context": 10,
+    "single_signal": 10
+  },
+  "per_scenario": {
+    "t2d": {
+      "ours": {
+        "TP": 23,
+        "FP": 0,
+        "FN": 0,
+        "TN": 97,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "F1": 1.0
+      },
+      "threshold_alert": {
+        "TP": 23,
+        "FP": 24,
+        "FN": 0,
+        "TN": 73,
+        "precision": 0.489,
+        "recall": 1.0,
+        "specificity": 0.753,
+        "F1": 0.657
+      }
+    },
+    "htn": {
+      "ours": {
+        "TP": 23,
+        "FP": 0,
+        "FN": 0,
+        "TN": 97,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "F1": 1.0
+      },
+      "threshold_alert": {
+        "TP": 22,
+        "FP": 62,
+        "FN": 1,
+        "TN": 35,
+        "precision": 0.262,
+        "recall": 0.957,
+        "specificity": 0.361,
+        "F1": 0.411
+      }
+    },
+    "pcos": {
+      "ours": {
+        "TP": 14,
+        "FP": 1,
+        "FN": 0,
+        "TN": 48,
+        "precision": 0.933,
+        "recall": 1.0,
+        "specificity": 0.98,
+        "F1": 0.966
+      },
+      "threshold_alert": {
+        "TP": 14,
+        "FP": 0,
+        "FN": 0,
+        "TN": 49,
+        "precision": 1.0,
+        "recall": 1.0,
+        "specificity": 1.0,
+        "F1": 1.0
+      }
+    }
+  },
+  "overall": {
+    "ours": {
+      "TP": 60,
+      "FP": 1,
+      "FN": 0,
+      "TN": 242,
+      "precision": 0.984,
+      "recall": 1.0,
+      "specificity": 0.996,
+      "F1": 0.992
+    },
+    "threshold_alert": {
+      "TP": 59,
+      "FP": 86,
+      "FN": 1,
+      "TN": 157,
+      "precision": 0.407,
+      "recall": 0.983,
+      "specificity": 0.646,
+      "F1": 0.576
+    }
+  },
+  "false_alarm_rate_stable_people": {
+    "ours": 0.0,
+    "threshold_alert": 0.8,
+    "by_archetype": {
+      "context_only": {
+        "ours": 0.0,
+        "threshold": 0.833
+      },
+      "control": {
+        "ours": 0.0,
+        "threshold": 0.625
+      },
+      "noisy_control": {
+        "ours": 0.0,
+        "threshold": 0.929
+      },
+      "single_signal": {
+        "ours": 0.0,
+        "threshold": 1.0
+      }
+    }
+  },
+  "onset_lag_days": {
+    "median": 32.0,
+    "p25": 20.0,
+    "p75": 44.25,
+    "n": 60,
+    "within_60_days": 0.917
+  },
+  "context_linking_accuracy": {
+    "accuracy": 1.0,
+    "n": 60,
+    "drift_without_history_correctly_unlinked": 10,
+    "drift_without_history_total": 10
+  },
+  "missing_data_requests": {
+    "patients_with_removed_data": 12,
+    "all_removed_items_asked_for": 1.0,
+    "by_variant": {
+      "no_hormone_labs": 1.0,
+      "no_recent_hba1c": 1.0,
+      "sparse_wearable": 1.0
+    }
+  },
+  "robustness_no_wearable_sheet": {
+    "n": 29,
+    "still_surfaced": {
+      "htn": 1.0,
+      "t2d": 0.857
+    },
+    "asked_for_wearable_data": 1.0
+  },
+  "guardrails": {
+    "explanations_checked": 303,
+    "with_banned_phrase": 0,
+    "with_disclaimer": 1.0
+  }
+}
