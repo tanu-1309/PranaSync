@@ -1,0 +1,132 @@
+# ---------------------------------------------------------------------------
+# Scenario configuration (owned by Sindhu + Uday)
+#
+# The three health areas are NOT three models. They are three configurations
+# of one framework: which signals to watch, which direction is a concern,
+# which past findings give context, and which data we would ask for if missing.
+# Adding a new health area = adding a block here, no new code.
+# ---------------------------------------------------------------------------
+
+defaults:
+  baseline_days: 60          # first N days of the window = personal baseline
+  rolling_days: 30           # window used to compare against the baseline
+  min_effect_size: 0.8       # |mean shift| / baseline SD needed to call a change
+  trend_alpha: 0.05          # Mann-Kendall significance level on weekly means
+  min_coverage: 0.5          # need >=50% of days present to analyse a daily signal
+  co_occurrence_days: 150    # signals must start changing within this span
+  min_signals: 3             # signals that must move together to surface a pattern
+  # Smallest change we consider meaningful for each signal ("15%" = relative to
+  # the person's baseline, a number = absolute units). Stops tiny but
+  # statistically "significant" drifts (e.g. 0.6 kg) from being called a change.
+  min_change:
+    steps: "15%"
+    active_minutes: "20%"
+    sedentary_hours: 1.0
+    weight_kg: 2.0
+    sleep_hours: 0.5
+    sbp: 6.0
+    dbp: 4.0
+    resting_hr: 4.0
+    hrv_ms: "15%"
+    cycle_length: 5.0
+
+scenarios:
+
+  t2d:
+    title: "Metabolic health / Type 2 diabetes risk"
+    applies_to: all
+    core_signals: [hba1c, fasting_glucose, weight_kg, steps]   # at least one must change
+    signals:                 # signal: direction of concern (up / down)
+      steps: down
+      active_minutes: down
+      sedentary_hours: up
+      weight_kg: up
+      sleep_hours: down
+    lab_signals:             # lab: [direction, minimum meaningful change]
+      hba1c: [up, 0.3]
+      fasting_glucose: [up, 8.0]
+      triglycerides: [up, 25.0]
+    context:
+      history_keywords: ["glyc", "a1c", "prediabet", "diabet", "glucose", "insulin resist", "metabolic syndrome"]
+      medication_keywords: ["metformin", "glp-1", "semaglutide", "sitagliptin", "empagliflozin"]
+      family_keywords: ["diabet"]
+      symptom_keywords: ["thirst", "urination", "fatigue", "blurred"]
+      lab_flags:             # lab: threshold that counts as a prior finding
+        hba1c: 5.7
+        fasting_glucose: 100
+    wanted_data:
+      - {item: "HbA1c lab result", type: lab, key: hba1c, max_age_days: 120}
+      - {item: "Fasting glucose lab result", type: lab, key: fasting_glucose, max_age_days: 120}
+      - {item: "Daily step count (wearable)", type: signal, key: steps}
+      - {item: "Daily weight", type: signal, key: weight_kg}
+      - {item: "Sleep tracking", type: signal, key: sleep_hours}
+
+  htn:
+    title: "Cardiovascular / Hypertension risk"
+    applies_to: all
+    core_signals: [sbp, dbp]          # a BP pattern needs BP itself to move
+    signals:
+      sbp: up
+      dbp: up
+      resting_hr: up
+      hrv_ms: down
+      weight_kg: up
+      sleep_hours: down
+      steps: down
+    lab_signals:
+      ldl_cholesterol: [up, 10.0]
+      total_cholesterol: [up, 15.0]
+    context:
+      history_keywords: ["blood pressure", "hypertens", "elevated bp", "bp reading", "cardio", "dyslipid", "cholesterol"]
+      medication_keywords: ["amlodipine", "lisinopril", "losartan", "hydrochlorothiazide", "atorvastatin", "rosuvastatin", "metoprolol"]
+      family_keywords: ["hypertens", "heart", "stroke", "cardio"]
+      symptom_keywords: ["headache", "dizziness", "palpitation", "chest"]
+      lab_flags:
+        ldl_cholesterol: 160
+        total_cholesterol: 240
+    wanted_data:
+      - {item: "Daily blood pressure readings", type: signal, key: sbp}
+      - {item: "Resting heart rate (wearable)", type: signal, key: resting_hr}
+      - {item: "Lipid panel (LDL cholesterol)", type: lab, key: ldl_cholesterol, max_age_days: 180}
+      - {item: "Sleep tracking", type: signal, key: sleep_hours}
+
+  pcos:
+    title: "PCOS / Women's health"
+    applies_to: female
+    core_signals: [cycle_length, testosterone]
+    signals:
+      cycle_length: up       # from the Women Health sheet (one value per cycle)
+      weight_kg: up
+      sleep_hours: down
+      steps: down
+    lab_signals:
+      testosterone: [up, 8.0]
+      fasting_insulin: [up, 3.0]
+      lh_fsh_ratio: [up, 0.4]
+    context:
+      history_keywords: ["cycle", "menstru", "pcos", "polycystic", "ovar", "androgen", "hirsut", "oligomenor"]
+      medication_keywords: ["oral contraceptive", "spironolactone", "metformin", "letrozole", "clomiphene"]
+      family_keywords: ["pcos", "polycystic", "diabet"]
+      symptom_keywords: ["acne", "hair", "irregular", "missed period", "bloating"]
+      lab_flags:
+        testosterone: 50
+        lh_fsh_ratio: 2.0
+    wanted_data:
+      - {item: "Cycle tracking (start dates)", type: signal, key: cycle_length}
+      - {item: "Testosterone lab result", type: lab, key: testosterone, max_age_days: 365}
+      - {item: "LH and FSH lab results", type: lab, key: lh_fsh_ratio, max_age_days: 365}
+      - {item: "Daily weight", type: signal, key: weight_kg}
+
+# Words the explanation must never contain (non-diagnostic boundary)
+guardrails:
+  banned_phrases:
+    - "you have diabetes"
+    - "you have hypertension"
+    - "you have pcos"
+    - "diagnos"
+    - "emergency"
+    - "go to the er"
+    - "urgent care"
+    - "you must"
+    - "dangerous"
+  required_disclaimer: "This is not a diagnosis. Please discuss these patterns with your healthcare provider."
