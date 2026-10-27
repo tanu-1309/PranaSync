@@ -1,0 +1,141 @@
+# ---------------------------------------------------------------------------
+# Column mapping for the Prana Chain patient workbooks (owned by Sneha)
+# Left = exact column name in the Excel sheet, right = canonical name in code.
+# Taken from the real workbook PC0001.xlsx (11 sheets). If a column is
+# renamed in the dataset, change it here only.
+# ---------------------------------------------------------------------------
+
+sheets:
+  profile: "Patient Profile"
+  history: "Medical History"
+  medications: "Medication History"
+  labs: "Lab Results"
+  vitals: "Vitals Daily"
+  wearable: "Wearable Daily"
+  habits: "Habits Weekly"
+  symptoms: "Symptoms Timeline"
+  notes: "Encounters & Notes"
+  adherence: "Medication Adherence"
+  women: "Women Health"
+
+columns:
+  history:
+    "Date": date
+    "Encounter / Type": encounter_type
+    "Finding / Event": finding
+    "Status": status
+    "Notes": notes
+  medications:
+    "Medication ID": med_id
+    "Medication": medication
+    "Dose": dose
+    "Frequency": frequency
+    "Route": route
+    "Start Date": start_date
+    "End Date": end_date
+    "Status": status
+    "Indication": indication
+    "Tolerance / Adverse Effect": tolerance
+    "Change Rationale": change_rationale
+  labs:
+    "Date": date
+    "Test Name": test
+    "Result": value
+    "Unit": unit
+    "Reference Range": ref_range
+  vitals:
+    "Date": date
+    "Systolic BP": sbp
+    "Diastolic BP": dbp
+    "Resting HR": resting_hr
+    "Weight kg": weight_kg
+    "BMI": bmi
+    "SpO2 %": spo2
+    "Temp C": temp_c
+    "Respiratory Rate": resp_rate
+  wearable:
+    "Date": date
+    "Steps": steps
+    "Sleep Hours": sleep_hours
+    "Active Minutes": active_minutes
+    "Resting HR": wearable_rhr
+    "HRV ms": hrv_ms
+    "Calories kcal": calories
+    "Sedentary Hours": sedentary_hours
+    "Stress Score 1-10": stress_score
+  habits:
+    "Week": week
+    "Week Start": date
+    "Water L/day": water_l
+    "Fruit/Veg servings/day": fruit_veg
+    "Exercise sessions/week": exercise_sessions
+    "Caffeine cups/day": caffeine
+    "Alcohol drinks/week": alcohol
+    "Smoking": smoking
+    "Late meals/week": late_meals
+    "Self-reported stress": stress_level
+  symptoms:
+    "Date": date
+    "Symptom": symptom
+    "Severity": severity
+    "Duration": duration
+    "Source": source
+  notes:
+    "Date": date
+    "Encounter": encounter
+    "Clinical Note": note
+  adherence:
+    "Month": date
+    "Medication ID": med_id
+    "Estimated Adherence %": adherence_pct
+    "Approx Missed Doses": missed_doses
+    "Source": source
+  women:
+    "Cycle": cycle
+    "Start Date": date
+    "Cycle Length": cycle_length
+    "Bleeding Days": bleeding_days
+    "Symptoms": symptoms
+    "Severity": severity
+
+# Lab test names -> canonical keys (case-insensitive match on the test name)
+labs:
+  "hba1c": hba1c
+  "fasting glucose": fasting_glucose
+  "glucose": fasting_glucose
+  "ldl cholesterol": ldl_cholesterol
+  "hdl cholesterol": hdl_cholesterol
+  "total cholesterol": total_cholesterol
+  "triglycerides": triglycerides
+  "testosterone": testosterone
+  "total testosterone": testosterone
+  "lh": lh
+  "fsh": fsh
+  "amh": amh
+  "fasting insulin": fasting_insulin
+  "insulin": fasting_insulin
+  "creatinine": creatinine
+  "egfr": egfr
+  "tsh": tsh
+  "alt": alt
+  "ast": ast
+
+# Physiological plausibility limits used during cleaning (outside = set to missing)
+plausible:
+  sbp: [70, 250]
+  dbp: [40, 150]
+  resting_hr: [30, 200]
+  wearable_rhr: [30, 200]
+  weight_kg: [25, 300]
+  bmi: [10, 80]
+  spo2: [70, 100]
+  temp_c: [34, 42]
+  resp_rate: [5, 40]
+  steps: [0, 60000]
+  sleep_hours: [0, 16]
+  active_minutes: [0, 600]
+  hrv_ms: [3, 250]
+  calories: [500, 7000]
+  sedentary_hours: [0, 24]
+  stress_score: [1, 10]
+  cycle_length: [10, 120]
