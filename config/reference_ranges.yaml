@@ -1,0 +1,155 @@
+# ---------------------------------------------------------------------------
+# Biological / clinical reference values (owner: Sindhu, to be reviewed by PranaChain's clinician)
+#
+# Why this file exists: change detection compares a person with THEIR OWN first 60 days and never uses
+# population values. That cannot see a level that was already outside the usual range on day one and never
+# moved. This second layer asks the other question: "where does the recent level sit against general
+# reference ranges?" It never changes the detection rules and never diagnoses; wording stays "typical /
+# above typical / well above typical".
+#
+# Each reference is a list of bands, low to high. `lo` is inclusive, `hi` exclusive (open ends = null).
+# flag: within (typical) | watch (modestly outside) | outside (clearly outside).
+# `soft: true` = a general guide with weaker evidence, never rated "outside".
+# Labs also use the reference range printed on the patient's own lab report (lab-specific, so it wins when
+# it is stricter); the bands below add the guideline wording for the common ones.
+# ---------------------------------------------------------------------------
+
+daily:
+  bp:
+    label: "Blood pressure"
+    unit: "mmHg"
+    signals: [sbp, dbp]
+    reference_text: "Typical: below 120 / 80"
+    source: "ACC/AHA 2017 blood pressure guideline categories"
+    note: "Home or wearable readings can run different from clinic readings."
+  resting_hr:
+    label: "Resting heart rate"
+    unit: "bpm"
+    reference_text: "Typical: 60 to 100 bpm"
+    source: "American Heart Association: resting heart rate for adults"
+    note: "Rates below 60 are common and healthy in very fit people."
+    bands:
+      - {lo: null, hi: 60, flag: watch, label: "Below the usual range"}
+      - {lo: 60, hi: 100.001, flag: within, label: "Typical"}
+      - {lo: 100.001, hi: null, flag: outside, label: "Above the usual range"}
+  spo2:
+    label: "Blood oxygen"
+    unit: "%"
+    reference_text: "Typical: 95% or higher"
+    source: "Common pulse-oximetry guidance (NHS, WHO)"
+    note: "Wrist and ring sensors are less accurate than clinical oximeters."
+    bands:
+      - {lo: null, hi: 92, flag: outside, label: "Well below typical"}
+      - {lo: 92, hi: 95, flag: watch, label: "Slightly below typical"}
+      - {lo: 95, hi: null, flag: within, label: "Typical"}
+  sleep_hours:
+    label: "Sleep"
+    unit: "h"
+    reference_text: "Typical for adults: 7 to 9 hours"
+    source: "AASM / Sleep Research Society consensus statement for adults"
+    note: "Needs vary a little between people."
+    bands:
+      - {lo: null, hi: 6, flag: outside, label: "Well below the usual range"}
+      - {lo: 6, hi: 7, flag: watch, label: "Slightly below the usual range"}
+      - {lo: 7, hi: 9.001, flag: within, label: "Typical"}
+      - {lo: 9.001, hi: null, flag: watch, label: "Longer than the usual range"}
+  bmi:
+    label: "Body mass index"
+    unit: "kg/m²"
+    reference_text: "Typical: 18.5 to 24.9"
+    source: "WHO body mass index classification for adults"
+    note: "BMI does not separate muscle from fat and is a rough guide only."
+    bands:
+      - {lo: null, hi: 18.5, flag: watch, label: "Below the typical range"}
+      - {lo: 18.5, hi: 25, flag: within, label: "Typical"}
+      - {lo: 25, hi: 30, flag: watch, label: "Above the typical range"}
+      - {lo: 30, hi: null, flag: outside, label: "Well above the typical range"}
+  steps:
+    label: "Daily steps"
+    unit: "steps"
+    soft: true
+    reference_text: "General guide: about 7,000 or more a day"
+    source: "Observational evidence on steps and long-term health (for example Paluch et al., Lancet Public Health 2022); no official target"
+    note: "A rough guide, not a rule. Right amounts depend on age and health."
+    bands:
+      - {lo: null, hi: 7000, flag: watch, label: "Below the general guide"}
+      - {lo: 7000, hi: null, flag: within, label: "Meets the general guide"}
+  active_minutes:
+    label: "Active minutes"
+    unit: "min"
+    soft: true
+    reference_text: "General guide: about 21 or more a day (150 a week)"
+    source: "WHO physical-activity guideline: at least 150 minutes of moderate activity a week"
+    note: "Depends on how your device counts active minutes."
+    bands:
+      - {lo: null, hi: 21, flag: watch, label: "Below the general guide"}
+      - {lo: 21, hi: null, flag: within, label: "Meets the general guide"}
+
+cycle:
+  label: "Cycle length"
+  unit: "days"
+  reference_text: "Typical: 21 to 35 days"
+  source: "ACOG: normal menstrual cycle length in adults"
+  note: "Some variation from cycle to cycle is normal."
+  lo: 21
+  hi: 35
+
+# Guideline bands for the common labs. Applied only when the lab's unit matches `unit`.
+labs:
+  hba1c:
+    unit: "%"
+    reference_text: "Typical: below 5.7%"
+    source: "American Diabetes Association Standards of Care"
+    bands:
+      - {lo: null, hi: 5.7, flag: within, label: "Typical"}
+      - {lo: 5.7, hi: 6.5, flag: watch, label: "Above typical"}
+      - {lo: 6.5, hi: null, flag: outside, label: "Well above typical"}
+  fasting_glucose:
+    unit: "mg/dL"
+    reference_text: "Typical: below 100 mg/dL"
+    source: "American Diabetes Association Standards of Care"
+    bands:
+      - {lo: null, hi: 100, flag: within, label: "Typical"}
+      - {lo: 100, hi: 126, flag: watch, label: "Above typical"}
+      - {lo: 126, hi: null, flag: outside, label: "Well above typical"}
+  ldl_cholesterol:
+    unit: "mg/dL"
+    reference_text: "Typical: below 100 mg/dL"
+    source: "NCEP ATP III lipid classification"
+    bands:
+      - {lo: null, hi: 100, flag: within, label: "Typical"}
+      - {lo: 100, hi: 160, flag: watch, label: "Above typical"}
+      - {lo: 160, hi: null, flag: outside, label: "Well above typical"}
+  total_cholesterol:
+    unit: "mg/dL"
+    reference_text: "Typical: below 200 mg/dL"
+    source: "NCEP ATP III lipid classification"
+    bands:
+      - {lo: null, hi: 200, flag: within, label: "Typical"}
+      - {lo: 200, hi: 240, flag: watch, label: "Above typical"}
+      - {lo: 240, hi: null, flag: outside, label: "Well above typical"}
+  triglycerides:
+    unit: "mg/dL"
+    reference_text: "Typical: below 150 mg/dL"
+    source: "NCEP ATP III lipid classification"
+    bands:
+      - {lo: null, hi: 150, flag: within, label: "Typical"}
+      - {lo: 150, hi: 200, flag: watch, label: "Above typical"}
+      - {lo: 200, hi: null, flag: outside, label: "Well above typical"}
+  hdl_cholesterol:
+    unit: "mg/dL"
+    source: "NCEP ATP III lipid classification"
+    by_sex:
+      female:
+        reference_text: "Typical: 50 mg/dL or higher"
+        bands:
+          - {lo: null, hi: 50, flag: watch, label: "Below typical"}
+          - {lo: 50, hi: null, flag: within, label: "Typical"}
+      male:
+        reference_text: "Typical: 40 mg/dL or higher"
+        bands:
+          - {lo: null, hi: 40, flag: watch, label: "Below typical"}
+          - {lo: 40, hi: null, flag: within, label: "Typical"}
+
+# Signals deliberately left without a population reference (too individual to compare with a crowd):
+personal_only: [hrv_ms, stress_score, sedentary_hours, weight_kg, calories]
