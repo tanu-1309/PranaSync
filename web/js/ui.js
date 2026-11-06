@@ -156,7 +156,7 @@ export async function api(path, { fresh = false, method = "GET", body } = {}) {
   if (!fresh && method === "GET" && cache.has(path)) return cache.get(path);
   const p = fetch(`/api/${path}`, {
     method, credentials: "same-origin",
-    headers: body ? { "Content-Type": "application/json" } : undefined, body: body ? JSON.stringify(body) : undefined,
+    headers: body && !(body instanceof FormData) ? { "Content-Type": "application/json" } : undefined, body: !body ? undefined : body instanceof FormData ? body : JSON.stringify(body),
   }).then(async (r) => {
     if (!r.ok) { const j = await r.json().catch(() => ({})); throw new ApiError(j.detail || `Server error ${r.status}`, r.status); }
     return r.json();
