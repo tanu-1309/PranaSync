@@ -17,8 +17,8 @@ Works on Windows 10/11, macOS and Linux. Needs about 1 GB of disk space and an i
 
 ### 0.3 Get the code
 ```bash
-git clone https://github.com/tanu-1309/PranaChain.git
-cd PranaChain
+git clone https://github.com/tanu-1309/PranaSync.git
+cd PranaSync
 ```
 (Before the code is merged into GitHub, unzip `PranaChain_checkpoint.zip` and `cd` into the folder instead.)
 
@@ -31,7 +31,7 @@ cd PranaChain
 | double-click **`demo_windows.bat`** (or run it in Command Prompt) | `bash demo_mac_linux.sh` |
 
 It creates a private Python environment (`.venv`), installs the packages, generates 120 test workbooks, runs the
-models on all of them, writes the validation report and opens the dashboard at **http://localhost:8501**.
+models on all of them, writes the validation report and opens the patient portal at **http://localhost:8000** (choose "Try the sample record").
 First run 3–5 minutes, later runs about 1 minute. Stop the dashboard with **Ctrl + C**.
 
 ---
@@ -65,13 +65,14 @@ You should now see `(.venv)` at the start of the prompt.
 | b. check data quality | `python -m prana.data.profiling --data data/synthetic` | ~15 s | `results/data_profile.csv` |
 | c. **run the full analysis** (clean → timeline → baseline → patterns → history link → evidence → explanation) | `python scripts/run_pipeline.py --data data/synthetic` | ~40 s | `results/summary.csv`, `results/insights/*.json`, `data/prana.db` |
 | d. **validate** against the planted ground truth | `python scripts/validate.py --data data/synthetic` | ~60 s | `results/validation_report.md`, `results/metrics.json`, `results/figures/*.png` |
-| e. automated tests | `python -m pytest -q` | ~10 s | `18 passed` |
-| f. **dashboard** | `streamlit run dashboard/app.py` | ~5 s | open **http://localhost:8501** in your browser |
+| e. automated tests | `python -m pytest -q` | ~30 s | all pass (browser tests are skipped unless `RUN_E2E=1`; see `docs/QA_AUTOMATION.md`) |
+| f. **patient portal** | `python scripts/serve.py` | ~5 s | open **http://localhost:8000**; sign in, or choose "Try the sample record" |
 
-Step **c** must run before **f** for the "Only patients with a surfaced pattern" filter to work.
-Open one patient directly: `http://localhost:8501/?patient=SYN0001`.
+Set `GUEST_ID=SYN0001` (environment variable) so "Try the sample record" opens a generated patient.
 
-**2.5 Look at one patient's result without the dashboard** — open `results/insights/SYN0001.json`
+**Demo day:** `python scripts/start_demo.py` starts and checks everything in one go (`--check` only checks). See `docs/DEMO_GUIDE.md`.
+
+**2.5 Look at one patient's result as a file** — open `results/insights/SYN0001.json`
 (evidence pack + explanation for each health area).
 
 ---
@@ -84,7 +85,7 @@ Open one patient directly: `http://localhost:8501/?patient=SYN0001`.
    ```bash
    python -m prana.data.profiling --data data/raw --limit 20      # quick look at 20 files first
    python scripts/run_pipeline.py --data data/raw --limit 20
-   streamlit run dashboard/app.py                                  # choose "Real dataset" in the sidebar
+   python scripts/serve.py                                         # patients sign in with the accounts from scripts/create_users.py
    ```
    Remove `--limit 20` to run everything (≈ 0.3 s per workbook, about 5 minutes for the 900 real files).
 4. If a sheet or column is reported missing, the name differs in that file: fix it in `config/column_map.yaml` (no code change).
@@ -104,7 +105,7 @@ Real data has no labels, so `validate.py` only works on the generated data. For 
 | `ModuleNotFoundError: pandas` (or another package) | The environment is not active (`(.venv)` missing): activate it (2.1) and re-run `pip install -r requirements.txt`. |
 | `pip install` fails on a package | `python -m pip install --upgrade pip`, then install again. Use Python 3.11–3.13 (not 3.14 beta). |
 | Dashboard says "No workbooks found" | Run step 2.4a first, from the project folder. |
-| Port 8501 already in use (the terminal prints another port, e.g. 8502) | open the URL the terminal prints, or stop the other dashboard first |
+| Port 8000 already in use by another program | start the portal on another port: `python scripts/serve.py --port 8010` |
 | Dashboard looks old after a code change | Press **R** in the browser, or stop (Ctrl+C) and start again. |
 | `PermissionError` writing a file on Windows | Close the Excel file / CSV that is open in Excel, then re-run. |
 | Very slow first load of a patient | Normal (~3–5 s, it analyses the workbook); later loads are cached. |

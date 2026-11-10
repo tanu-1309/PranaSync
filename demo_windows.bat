@@ -1,6 +1,6 @@
 @echo off
 REM One-command demo for Windows: double-click this file, or run  demo_windows.bat  in Command Prompt.
-REM First run: creates .venv and installs packages (~2-4 min). Later runs: ~1 min, then opens the dashboard.
+REM First run: creates .venv and installs packages (~2-4 min). Later runs: ~1 min, then opens the patient portal.
 cd /d "%~dp0"
 
 where py >nul 2>nul
@@ -25,12 +25,7 @@ python scripts\run_pipeline.py --data data/synthetic || goto :error
 echo == validating against planted ground truth
 python scripts\validate.py --data data/synthetic >nul || goto :error
 echo    report: results\validation_report.md
-echo == starting dashboard on http://localhost:8501  (Ctrl+C to stop)
-start "" cmd /c "timeout /t 6 >nul & start http://localhost:8501"
-streamlit run dashboard\app.py
-goto :eof
-
-:error
-echo.
-echo Something failed above. See docs\RUN_GUIDE.md, section "If something goes wrong".
-pause
+echo == starting the patient portal on http://localhost:8000  (Ctrl+C to stop). Use "Try the sample record".
+set GUEST_ID=SYN0001
+start "" cmd /c "timeout /t 6 >nul & start http://localhost:8000"
+python scripts\serve.py --no-browser

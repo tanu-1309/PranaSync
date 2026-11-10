@@ -1,0 +1,26 @@
+{
+  "patients": 300,
+  "settings": {
+    "gate_p": 0.001,
+    "damping": 0.75,
+    "interval_widening": 1.25,
+    "size_share": 0.5
+  },
+  "daily": {
+    "n": 33,
+    "error_vs_nothing_changes": 0.524,
+    "better_than_nothing_changes": 0.848,
+    "inside_95_range": 0.939,
+    "series_tested": 2700,
+    "projections_shown": 33
+  },
+  "labs_not_projected": {
+    "n": 128,
+    "error_vs_nothing_changes": 1.047,
+    "better_than_nothing_changes": 0.578,
+    "inside_95_range": 0.727,
+    "series_tested": 1121,
+    "reason": "Even with a generous gate, the true value fell inside the 95% range far too rarely, because labs have only 4 to 6 results a year."
+  },
+  "note": "Scored only on forecasts that passed the reliability gate, on patients not used to choose the settings. error_vs_nothing_changes below 1 means better than assuming no change. Test workbooks, not clinical validation."
+}

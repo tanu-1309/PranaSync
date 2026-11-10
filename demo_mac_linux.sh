@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-command demo for macOS / Linux:   bash demo_mac_linux.sh
-# First run: creates .venv and installs packages (~2-4 min). Later runs: ~1 min, then opens the dashboard.
+# First run: creates .venv and installs packages (~2-4 min). Later runs: ~1 min, then opens the patient portal.
 set -e
 cd "$(dirname "$0")"
 PY=python3
@@ -22,6 +22,6 @@ python scripts/run_pipeline.py --data data/synthetic
 echo "== validating against planted ground truth"
 python scripts/validate.py --data data/synthetic > /dev/null
 echo "   report: results/validation_report.md"
-echo "== starting dashboard on http://localhost:8501  (Ctrl+C to stop)"
-( sleep 6; open http://localhost:8501 2>/dev/null || xdg-open http://localhost:8501 2>/dev/null ) &
-streamlit run dashboard/app.py
+echo "== starting the patient portal on http://localhost:8000  (Ctrl+C to stop). Use 'Try the sample record'."
+( sleep 6; open http://localhost:8000 2>/dev/null || xdg-open http://localhost:8000 2>/dev/null ) &
+GUEST_ID=SYN0001 python scripts/serve.py --no-browser

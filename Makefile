@@ -8,7 +8,8 @@ profile:   ; python -m prana.data.profiling --data $(DATA)
 run:       ; python scripts/run_pipeline.py --data $(DATA)
 validate:  ; python scripts/validate.py --data data/synthetic
 test:      ; python -m pytest -q
+qa:        ; ruff check . && python -m pytest -q && python scripts/qa_audit.py
+e2e:       ; RUN_E2E=1 python -m pytest tests/test_e2e.py -q
 ui:        ; python scripts/serve.py
 users:     ; python scripts/create_users.py
-dashboard: ; streamlit run dashboard/app.py
-demo: synthetic run validate dashboard
+demo: synthetic run validate ui
