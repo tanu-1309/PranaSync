@@ -18,7 +18,29 @@ const BENEFITS = [
   ["question", "Questions answered", "Ask Prana about your record once you’re in."],
 ];
 
-export function loginView(root, { notice, onSuccess, onBack }) {
+function recoverView(root, onBack) {
+  const id = h("input", { id: "rc-id", autocomplete: "username", autocapitalize: "characters", spellcheck: "false", required: true, placeholder: "PC0000" });
+  const code = h("input", { id: "rc-code", autocomplete: "off", spellcheck: "false", required: true, placeholder: "xxxx-xxxx-xxxx" });
+  const nw = h("input", { id: "rc-new", type: "password", autocomplete: "new-password", required: true, maxlength: "200", placeholder: "At least 10 characters" });
+  const err = h("div", { class: "err", role: "alert" }), go = h("button", { class: "btn solid", type: "submit" }, "Set a new password");
+  const form = h("form", { novalidate: true, onsubmit: async (e) => {
+    e.preventDefault(); clear(err);
+    if (!id.value.trim() || !code.value.trim() || nw.value.length < 10) { err.append("Enter your ID, one recovery code and a new password of at least 10 characters."); return; }
+    go.disabled = true; go.textContent = "Checking…";
+    try {
+      const r = await api("recover", { method: "POST", body: { id: id.value, code: code.value, new_password: nw.value } }); clear(form);
+      form.append(h("h2", null, "Password changed"), h("p", { class: "sub" }, `You can sign in with your new password now. You have ${r.codes_left} recovery code${r.codes_left === 1 ? "" : "s"} left. Make a fresh set on the Account page when you are signed in.`), h("button", { class: "btn solid", type: "button", onclick: onBack }, "Go to sign in"));
+    } catch (ex) { err.append(icon("info", 16), ex.message); go.disabled = false; go.textContent = "Set a new password"; }
+  } },
+    h("button", { class: "back", type: "button", onclick: onBack }, "← Back to sign in"),
+    h("h2", null, "Lost your password?"),
+    h("p", { class: "sub" }, "Use one of the eight recovery codes you saved when you created your account. Each code works once."),
+    h("label", { class: "field" }, h("span", null, "Patient ID"), id), h("label", { class: "field" }, h("span", null, "One recovery code"), code), h("label", { class: "field" }, h("span", null, "New password"), nw), err, go,
+    h("p", { class: "small" }, "No codes? People issued an ID by the care team, or who did not save their codes, need the team to reset the password."));
+  clear(root); root.append(form); id.focus();
+}
+
+export function loginView(root, { notice, onSuccess, onBack, onRegister }) {
   const id = h("input", { id: "pid", name: "id", autocomplete: "username", autocapitalize: "characters", spellcheck: "false", required: true, placeholder: "PC0000", "aria-describedby": "err" });
   const pw = h("input", { id: "pwd", name: "password", type: "password", autocomplete: "current-password", required: true, placeholder: "Your password", "aria-describedby": "err" });
   const eye = h("button", { type: "button", "aria-label": "Show password", onclick: () => { const on = pw.type === "password"; pw.type = on ? "text" : "password"; eye.textContent = on ? "hide" : "show"; } }, "show");
@@ -52,9 +74,11 @@ export function loginView(root, { notice, onSuccess, onBack }) {
     h("label", { class: "field" }, h("span", null, "Patient ID"), id),
     h("label", { class: "field" }, h("span", null, "Password"), h("div", { class: "pw" }, pw, eye)),
     err, go,
+    h("button", { class: "linkbtn", type: "button", onclick: () => recoverView(root.querySelector("#main"), () => loginView(root, { notice, onSuccess, onBack, onRegister })) }, "Forgot your password?"),
     h("div", { class: "or" }, h("span", null, "or")),
     guestBtn,
-    h("p", { class: "small" }, "Use the ID and password your care team issued. You can change the password after you sign in. If you’ve lost it, ask the team to reset it."));
+    onRegister ? h("button", { class: "btn ghost", type: "button", onclick: onRegister }, "Create an account and upload my documents") : null,
+    h("p", { class: "small" }, "Use the ID and password your care team issued. You can change the password after you sign in. If you’ve lost it, use a recovery code (Forgot your password?) or ask the team to reset it."));
 
   clear(root);
   root.append(h("div", { class: "login" },
