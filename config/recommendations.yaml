@@ -1,0 +1,90 @@
+# ---------------------------------------------------------------------------
+# Recommendation wording (owner: Uday, to be reviewed by PranaChain's clinician)
+#
+# Every recommendation is built from the patient's own analysed data and one of these templates. Nothing is invented:
+# each number in the text comes from the record, the reference ranges or the forecast.
+# What recommendations are: things worth raising with a care team, things to watch, information that would help,
+# and general public-health guidance. What they never are: a diagnosis, a medicine instruction, or a dose change.
+# The banned phrases at the bottom are checked automatically on every recommendation for every patient.
+# ---------------------------------------------------------------------------
+
+disclaimer: "These are suggestions for a conversation with your care team. They are not medical advice or a diagnosis, and they never mean changing how you take a medicine."
+
+groups:
+  raise: "Worth raising with your care team"
+  watch: "Worth keeping an eye on"
+  data: "Information that would sharpen the picture"
+  habits: "General guidance, if it fits you"
+
+limits:
+  raise: 6
+  watch: 6
+  data: 6
+  habits: 3
+
+rules:
+  pattern:
+    title: "Bring the {area} pattern to your care team"
+    why: "{n} related measurements began moving together around {date}: {moved}."
+    context: "It echoes something already in your record: {context}."
+    ask: "Ask whether this pattern calls for a closer look or repeat tests."
+  changed_outside:
+    title: "{label} is outside its usual range and has been changing"
+    why: "Recent level {value} {unit}. Usual reference: {reference}. It has changed for you over the year."
+    ask: "Ask whether this needs rechecking."
+  steady_outside:
+    title: "Mention your {label} level at your next visit"
+    why: "Recent level {value} {unit}. Usual reference: {reference}. It has been steady for you, so the pattern check would not raise it."
+    ask: "Ask whether this level is expected for you."
+  forecast_cross:
+    title: "At its current pace, {label} may reach “{into}” in about {days} days"
+    why: "Recent level {now} {unit}, {trend} by about {slope} {unit} a week. If 75% of that pace continues, expect about {value} {unit} in {horizon} days (95% range {low} to {high})."
+    ask: "Ask whether to recheck sooner than planned."
+  forecast_trend:
+    title: "{label} has a strong, lasting {trend} trend"
+    why: "Recent level {now} {unit}, {trend} by about {slope} {unit} a week. If 75% of that pace continues, expect about {value} {unit} in {horizon} days (95% range {low} to {high})."
+    ask: "Worth noting at your next visit if this is not intended."
+  missing:
+    title: "{item}"
+    why: "{reason}"
+  adherence_low:
+    title: "About {pct}% of your {med} doses were taken"
+    why: "Across {n} records the share of doses taken averaged {pct}% ({words})."
+    ask: "If doses are being missed because of side effects, cost or routine, tell your pharmacist or care team before changing anything."
+  home_bp:
+    title: "A few consistent home blood pressure readings would help"
+    why: "Your blood pressure sits at {value} mmHg, {category}. Wearable and home readings can differ from clinic readings, so a clear set of readings helps your clinician judge."
+    ask: "Ask how and when to take home readings, and bring them to your visit."
+    source: "ACC/AHA 2017 blood pressure guideline"
+  steps_low:
+    title: "Your daily steps are below the general guide"
+    why: "You average {value} steps a day over the last 30 days. The general guide is about 7,000 or more. It is a rough guide from observational research, not a rule."
+    ask: "If it fits you, ask what increase would be realistic for you."
+    source: "Paluch et al., Lancet Public Health 2022 (observational evidence; no official target)"
+  activity_low:
+    title: "Your active minutes are below the general guide"
+    why: "You average {value} active minutes a day. The WHO guideline is at least 150 minutes of moderate activity a week, about 21 a day."
+    ask: "If it fits you, ask what would be realistic for you."
+    source: "WHO physical-activity guideline"
+  sleep_off:
+    title: "Your sleep is outside the usual range"
+    why: "You average {value} hours of sleep. The usual range for adults is 7 to 9 hours. Needs vary a little between people."
+    ask: "If this is a change you did not choose, it may be worth noting what changed."
+    source: "AASM / Sleep Research Society consensus statement"
+
+# Words and phrases a recommendation must never contain. Checked on every patient by the tests and the full-cohort run.
+banned_phrases:
+  - "diagnos"
+  - "you have diabetes"
+  - "you have hypertension"
+  - "you have pcos"
+  - "you must"
+  - "you should stop"
+  - "stop taking"
+  - "start taking"
+  - "increase your dose"
+  - "reduce your dose"
+  - "double your"
+  - "emergency"
+  - "dangerous"
+  - "cure"

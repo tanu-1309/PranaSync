@@ -30,3 +30,7 @@ venv/
 
 # per-person hand-out folders (copies of tracked files)
 team_bundles/
+
+# private development PostgreSQL (data and generated passwords)
+data/pgdata/
+data/.pg_*

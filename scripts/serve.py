@@ -1,4 +1,4 @@
-"""Start the PranaChain Insight interface.
+"""Start the PranaSync patient portal.
 
     python scripts/serve.py                 ->  http://localhost:8000
     python scripts/serve.py --port 9000 --no-browser

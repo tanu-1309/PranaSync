@@ -13,7 +13,7 @@ jobs:
         with: {python-version: "${{ matrix.python-version }}", cache: pip}
       - run: pip install -r requirements.txt
       - name: Lint
-        run: ruff check src scripts tests dashboard --select E,F --ignore E501
+        run: ruff check src scripts tests --select E,F --ignore E501
       - name: Unit tests
         run: python -m pytest -q
       - name: End-to-end smoke test (small synthetic set)
@@ -21,3 +21,12 @@ jobs:
           PYTHONPATH=src python -m prana.data.generate_synthetic --n 24 --out data/synthetic
           PYTHONPATH=src python scripts/run_pipeline.py --data data/synthetic --no-db
           PYTHONPATH=src python scripts/validate.py --data data/synthetic
+      - name: Cohort QA (every patient, every kind of question)
+        run: |
+          PYTHONPATH=src python scripts/init_db.py
+          PYTHONPATH=src python scripts/qa_audit.py
+      - name: Browser end-to-end tests
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+          RUN_E2E=1 python -m pytest tests/test_e2e.py -q

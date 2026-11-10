@@ -1,7 +1,8 @@
-"""Patient accounts: scrypt-hashed passwords, a small user store, and login throttling.
+"""Patient accounts: scrypt-hashed passwords, stored in the database `users` table, and login throttling.
 
-The store is `data/users.json` (git-ignored): {patient_id: "scrypt$n$r$p$salt$hash"}. It is created by
-`scripts/create_users.py`, which also writes the one-time credentials sheet for the care team to hand out.
+Rows are {patient_id, "scrypt$n$r$p$salt$hash"}. They are created by `scripts/create_users.py`, which also writes the
+one-time credentials sheet for the care team to hand out. (Older installs kept the hashes in data/users.json;
+`scripts/init_db.py` imports that file once.)
 
 This is a prototype scheme (ID + issued password, signed cookie session). A production deployment would sit
 behind the platform's real identity provider with MFA; the API shape (`/api/login`, `/api/me`) would not change.
@@ -18,6 +19,7 @@ import time
 from pathlib import Path
 
 from prana.config import DATA_DIR
+from prana.data import db
 
 USERS_FILE = Path(os.getenv("PRANA_USERS_FILE", DATA_DIR / "users.json"))
 SECRET_FILE = DATA_DIR / ".session_secret"
@@ -45,22 +47,14 @@ def _verify(password: str, stored: str) -> bool:
 _DUMMY = hash_password("not-a-real-password")  # so unknown IDs cost the same time as wrong passwords
 
 
-_cache: dict = {"mtime": None, "users": {}}
-
-
-def load_users() -> dict[str, str]:
-    """Read the user store, re-reading only when the file changes (a reset must take effect at once)."""
-    if not USERS_FILE.exists():
-        return {}
-    m = USERS_FILE.stat().st_mtime_ns
-    if _cache["mtime"] != m:
-        _cache.update(mtime=m, users=json.loads(USERS_FILE.read_text(encoding="utf-8")))
-    return _cache["users"]
+def legacy_users() -> dict[str, str]:
+    """Hashes from the old data/users.json, used only by the one-time import."""
+    return json.loads(USERS_FILE.read_text(encoding="utf-8")) if USERS_FILE.exists() else {}
 
 
 def password_version(pid: str) -> str | None:
     """Changes whenever the patient's password is reset, so old sessions stop working."""
-    stored = load_users().get(pid)
+    stored = db.get_user_hash(pid)
     return hashlib.sha256(stored.encode()).hexdigest()[:16] if stored else None
 
 
@@ -88,7 +82,7 @@ def check(pid: str, password: str, client: str) -> tuple[bool, int]:
     wait = max(locked_for(k) for k in keys)
     if wait:
         return False, wait
-    stored = load_users().get(pid)
+    stored = db.get_user_hash(pid)
     ok = _verify(password, stored or _DUMMY) and stored is not None
     for k in keys:
         if ok:

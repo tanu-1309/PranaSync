@@ -1,6 +1,6 @@
 # How each of us pushes the checkpoint into `main`
 
-Repo: https://github.com/tanu-1309/PranaChain · Each person commits **their own files from their own GitHub account**.
+Repo: https://github.com/tanu-1309/PranaSync · Each person commits **their own files from their own GitHub account**.
 Use the bundle with your name (`Tanusree_...zip` etc.); each contains only your files, already at the right paths, plus
 `PUSH_INSTRUCTIONS.md`. **Push in this order** so the tests pass after every merge:
 
@@ -18,8 +18,8 @@ After PR 6: `git tag checkpoint-1 && git push origin checkpoint-1`.
 ## Steps for each person (same every time)
 ```bash
 # once
-git clone https://github.com/tanu-1309/PranaChain.git
-cd PranaChain
+git clone https://github.com/tanu-1309/PranaSync.git
+cd PranaSync
 git config user.name "Your Name"            # so the commit shows YOUR name
 git config user.email "you@uwindsor.ca"     # the email of your GitHub account
 

@@ -1,0 +1,17 @@
+{
+  "patients": 900,
+  "seconds": 4.1,
+  "questions_per_patient": 30,
+  "chat_answers": 27000,
+  "suggestions_checked": 7408,
+  "heart_risk_scored": 477,
+  "diabetes_scored": 854,
+  "forecasts_shown": 108,
+  "chat_latency_ms": {
+    "mean": 0.04,
+    "p99": 0.19
+  },
+  "failures": 0,
+  "first_failures": [],
+  "passed": true
+}

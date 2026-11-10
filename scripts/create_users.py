@@ -5,7 +5,7 @@
     python scripts/create_users.py --reset-all      # new random passwords for everyone
 
 Writes
-  data/users.json                 patient ID -> scrypt hash        (what the server checks)
+  database table `users`          patient ID -> scrypt hash        (what the server checks)
   data/credentials_ISSUE_ONCE.csv patient ID, temporary password   (hand out, then delete)
 
 Both files are git-ignored. Passwords are 12 random characters in three groups (for example Kq7m-Xw3R-b9Zp), drawn from
@@ -16,7 +16,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import json
 import secrets
 import sys
 from datetime import datetime
@@ -24,8 +23,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from prana.api.auth import USERS_FILE, hash_password, load_users  # noqa: E402
+from prana.api.auth import hash_password  # noqa: E402
 from prana.config import DATA_DIR, RAW_DIR, SYNTHETIC_DIR  # noqa: E402
+from prana.data import db  # noqa: E402
 from prana.data.loader import list_workbooks  # noqa: E402
 
 ALPHABET = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # 54 symbols, no look-alikes
@@ -42,8 +42,9 @@ if __name__ == "__main__":
     a = ap.parse_args()
 
     ids = [p.stem for p in (list_workbooks(RAW_DIR) or list_workbooks(SYNTHETIC_DIR))]
-    users = load_users()
-    todo = ids if a.reset_all else [i for i in ids if i not in users or i in a.reset]
+    db.init_db()
+    existing = db.user_ids()
+    todo = ids if a.reset_all else [i for i in ids if i not in existing or i in a.reset]
     if not todo:
         print("Everyone already has an account.")
         raise SystemExit(0)
@@ -63,9 +64,10 @@ if __name__ == "__main__":
         w = csv.writer(fh)
         if new_file:
             w.writerow(["patient_id", "temporary_password"])
+        new_hashes = {}
         for pid in todo:
             pw = new_password()
-            users[pid] = hash_password(pw)
+            new_hashes[pid] = hash_password(pw)
             w.writerow([pid, pw])
-    USERS_FILE.write_text(json.dumps(users, indent=0), encoding="utf-8")
-    print(f"Created {len(todo)} account(s). Hashes: {USERS_FILE}\nCredentials to hand out: {sheet}")
+    db.set_user_hashes(new_hashes)
+    print(f"Created {len(todo)} account(s). Password hashes are in the {db.dialect()} database (table users).\nCredentials to hand out: {sheet}")
