@@ -1,0 +1,25 @@
+# Rules for the medical knowledge base (src/prana/ai/knowledge.py).
+# Nothing is ingested unless it passes these rules AND a named person has approved it in the manifest (data/knowledge/manifest.yaml).
+# This list is PROPOSED and needs clinician and licence review before real documents are added. It is not a statement that these sites are suitable.
+
+# A source's web address must be https and on one of these hosts (or a sub-domain of one).
+allowed_hosts:
+  - who.int
+  - canada.ca
+  - ontario.ca
+  - hypertension.ca
+  - diabetes.ca
+  - cdc.gov
+  - nhlbi.nih.gov
+  - nih.gov                # includes the Office of Dietary Supplements (ods.od.nih.gov) and MedlinePlus partners
+  - medlineplus.gov        # US National Library of Medicine patient-education pages (US government work)
+  - loinc.org
+  - snomed.org
+  - infoway-inforoute.ca
+
+# What a source may be used for.
+#   guideline / government  -> clinical or public-health guidance: may be cited to explain a finding
+#   terminology             -> names and codes (ICD-11, SNOMED CT, LOINC): used only to explain what a term means, never as clinical guidance
+types:
+  guidance: [guideline, government]
+  terminology: [terminology]
