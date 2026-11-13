@@ -1,7 +1,10 @@
 // The patient's own record, one function per page of the portal.
 import { h, clear, STATUS, AREAS, chip, md, fmt, signed, fmtDate, parseDate, DAY } from "./ui.js";
 import { hero } from "./hero.js";
+import { hl as hlText } from "./highlight.js";
 import { glance } from "./glance.js";
+import { keyNumbers, helpAsync, careTiles, urgentBox } from "./homeparts.js";
+import { aiReady, aiNotice, aiBadge, shimmer } from "./ai.js";
 import { convergence, convergenceKey, linePanel, labCard, patternSignals, onsets } from "./charts.js";
 
 const GROUPS = ["Heart", "Body", "Movement", "Rest"];
@@ -159,37 +162,74 @@ function referenceSection(p, mode) {
     h("p", { class: "fine", style: { marginTop: "20px" } }, `Reference ranges are general guides and can differ with age, sex, pregnancy, medicines and health conditions; your lab’s own range may differ too. They say where a number sits. They do not diagnose. ${R.personal_only?.length ? "A few signals (heart-rate variability, weight, stress score, sedentary time) have no population range worth comparing with, so they are judged against you only." : ""}${clin ? " Sources are listed in the last column." : ""}`));
 }
 
+const retryAI = () => document.dispatchEvent(new CustomEvent("prana:retry-ai"));
+const GROUP_TITLE = { raise: "Worth raising with your care team", watch: "Worth keeping an eye on", data: "Information that would help", habits: "General guidance, if it fits you" };
+
+// Home: every word is written by the AI from the patient's record. The numbers (the ring, the risk figures) are computed by code and handed to the AI as facts.
 export function overviewView(p, mode) {
-  const hl = headline(p, mode);
+  const ai = p.ai || { status: "loading" };
+  const ok = aiReady(p);
+  const hl = ok ? { title: ai.headline, text: mode === "clinician" ? ai.clinician_summary : ai.overview }
+    : (() => {   // no AI text: show a plain headline worked out from the numbers, never an error as the page title
+      const R = p.reference?.items || [], within = R.filter((i) => i.flag === "within").length, off = R.length - within;
+      if (ai.status === "loading") return { title: "Reading your record…", text: "Prana is writing your summary. Your computed numbers are already below." };
+      return { title: R.length ? `${within} of ${R.length} measures are in their usual range.` : "Your health record", text: R.length ? (off ? `${off} ${off === 1 ? "is" : "are"} outside the range and worth a look below. The written summary will appear when the AI is available again; the numbers here do not depend on it.` : "Everything we could compare is in its usual range. The written summary will appear when the AI is available again.") : "The written summary will appear when the AI is available again." };
+    })();
+  const changed = p.scenarios.filter((x) => x.surfaced);
+  return h("div", { class: "page home" },
+    hero(p, hl),
+    aiNotice(p, retryAI),
+    jumpLinks(),
+    glance(p),
+    keyNumbers(p),
+    helpAsync(p),
+    changed.length ? h("section", { class: "hp", "aria-labelledby": "chg-h" }, h("h2", { id: "chg-h" }, "What has changed for you"),
+      h("p", { class: "standfirst" }, "Measurements that began moving together. This describes your own data and is not a diagnosis."),
+      h("div", { class: "ct-grid" }, changed.map((sc) => h("a", { class: "ct", href: "#/records/trends" }, h("span", { class: "gk" }, `${sc.pattern_signals.length} signals · from ${fmtDate(sc.pattern_start, "short")}`), h("b", null, AREAS[sc.scenario].name), h("span", null, AREAS[sc.scenario].sub), h("span", { class: "gf" }, "Explore these signals in Trends"))))) : null,
+    careTiles(p),
+    ok ? h("section", { class: "aisec", "aria-labelledby": "ai-h" }, h("div", { class: "aihead" }, h("h2", { id: "ai-h" }, "Most important right now"), aiBadge(p)),
+      h("div", { class: "aifind" }, (ai.top || []).map((t) => h("article", { class: "card aif" }, h("h3", null, t.title), hlText("p", null, t.text)))))
+      : h("section", { class: "aisec" }, h("h2", null, "Most important right now"), shimmer(3)),
+    ok ? h("p", { class: "standfirst" }, "The details are on their own pages: ", h("a", { href: "#/records/trends" }, "Trends"), " for what changed, ", h("a", { href: "#/records/labs" }, "Labs"), " for your levels, and ",
+      h("a", { href: "#/insights/outlook" }, "Outlook"), " for where things are heading, what to do, and questions for your doctor.") : null,
+    urgentBox(),
+    askBand(),
+    h("a", { class: "statscard", href: "#/clinical" }, h("span", { class: "gk" }, "For your doctor"), h("b", null, "Clinical view"),
+      h("span", null, "Statistical findings, every lab value, the risk model’s workings, documents with original and corrected values, and data quality."), h("span", { class: "gf" }, "Open the clinical view")),
+    h("p", { class: "fine" }, "The text on this page was written by an AI model from your record. The numbers come from your record. It describes your data and does not diagnose. Please discuss anything here with a healthcare provider."));
+}
+
+// A short "on this page" row so a long page is easy to move around, for people using a keyboard or a screen reader too.
+function jumpLinks() {
+  return h("nav", { class: "jump", "aria-label": "On this page" }, h("span", null, "On this page:"),
+    [["glance", "Health risks"], ["levels-home", "Numbers"], ["help-home", "What would help"], ["care-home", "Your care"]].map(([id, l]) => h("a", { href: `#/`, onclick: (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }); document.getElementById(id)?.focus({ preventScroll: true }); } }, l)));
+}
+
+// The statistical findings: computed by code (baseline comparison, Mann-Kendall trend test, change-point detection, published reference ranges). No AI writes anything here.
+export function statisticsView(p, mode) {
   const asksN = p.scenarios.reduce((a, sc) => a + sc.missing_data.length, 0);
   const list = p.scenarios.filter((x) => x.status !== "not_applicable").sort((a, b) => STATUS[a.status].rank - STATUS[b.status].rank);
   const goto = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-
   const rows = p.scenarios.map((sc) => {
     const na = sc.status === "not_applicable";
     return h("tr", { class: na ? "na" : "" },
       h("td", { class: "nm" }, AREAS[sc.scenario].name, h("small", null, AREAS[sc.scenario].sub)),
       h("td", { class: "st" }, chip(sc.status)),
       h("td", { class: "ln" }, sc.surfaced ? `${sc.pattern_signals.length} signals moved together, from ${fmtDate(sc.pattern_start, "short")}.` : sc.status_text + ".",
-        na ? null : h("div", null, h("button", { class: "link", style: { fontSize: "14px", marginTop: "4px" }, onclick: () => goto(`ins-${sc.scenario}`) }, "Read the finding ↓"))));
+        na ? null : h("div", null, h("button", { class: "link", style: { fontSize: "14px", marginTop: "4px" }, onclick: () => goto(`ins-${sc.scenario}`) }, "Read the full finding for this area"))));
   });
-
   const earlier = p.events.filter((e) => e.t === "history" && e.d < p.start);
-  return h("div", { class: "page home" },
-    hero(p, hl),
-    glance(p, hl),
-    askBand(),
-    h("h2", { class: "morehead" }, "Go deeper, when you want to"),
-    fold("01", "Your year, week by week", "Each row is one measurement and each column a week. Colour shows how far that week sits from your own usual. A pattern is several rows warming together, not one hot cell.", false, "map",
+  return h("div", { class: "page" },
+    pagehead("Statistical findings", "Computed by code with statistical tests: each measurement against your own first 60 days, a Mann-Kendall trend test, change-point detection, and published reference ranges. No AI writes anything on this page."),
+    fold("01", "Your year, week by week", "Each row is one measurement and each column a week. Colour shows how far that week sits from your own usual. A pattern is several rows warming together, not one hot cell.", true, "map",
       h("table", { class: "areas" }, h("tbody", null, rows)),
       h("div", { class: "cmap" }, h("div", { class: "keyrow" }, h("span", null, "Hover a column for the week’s readings."), convergenceKey()),
         convergence(p),
         earlier.length ? h("div", { class: "hist" }, h("b", null, "History on file"), earlier.map((e) => h("span", { class: "h" }, `${e.text}, ${fmtDate(e.d, "month")}`))) : null)),
     fold("02", "Where your levels sit", "Is each level within a usual range from published guidelines?", false, "levels", referenceSection(p, mode)),
-    fold("03", "What we found", mode === "clinician" ? "Evidence-first. Every claim sits next to its effect size, trend test and coverage." : "In plain words: what changed, since when, and why it may matter.", p.scenarios.some((x) => x.surfaced), "found",
+    fold("03", "Pattern findings", mode === "clinician" ? "Evidence-first. Every claim sits next to its effect size, trend test and coverage." : "What changed, since when, with the test results behind it.", p.scenarios.some((x) => x.surfaced), "found",
       h("div", null, list.map((sc) => finding(p, sc, mode)))),
-    asksN ? h("p", { class: "standfirst" }, `${asksN} piece${asksN > 1 ? "s" : ""} of missing information would sharpen this picture. `, h("a", { class: "link", href: "#/help" }, "See what would help →")) : null,
-    h("p", { class: "fine" }, "This describes patterns in your own data and does not diagnose. Please discuss anything here with a healthcare provider."));
+    asksN ? h("p", { class: "standfirst" }, `${asksN} piece${asksN > 1 ? "s" : ""} of missing information would sharpen this picture. `, h("a", { class: "link", href: "#/insights/help" }, "Review what would help")) : null);
 }
 
 // A calm invitation to the assistant, with a few things people usually want to know.
@@ -224,6 +264,7 @@ export function timelineView(p) {
   draw();
   return h("div", { class: "page" },
     pagehead("Timeline", "Every daily signal across the year. Move your pointer over any chart and all of them follow the same day."),
+    aiFindings(p),
     h("div", { class: "tl-tools" },
       h("div", { class: "legend-line" },
         h("span", null, h("i", { class: "sw dots" }), "daily reading"), h("span", null, h("i", { class: "sw" }), "30-day mean"),
@@ -235,6 +276,19 @@ export function timelineView(p) {
           state.range = !state.range; e.currentTarget.setAttribute("aria-pressed", String(state.range)); draw();
         } }, "Show usual range")))),
     host);
+}
+
+// What the AI found, by health area (the Trends page). Home only carries the few most important points.
+function aiFindings(p) {
+  if (!aiReady(p)) return p.ai?.status === "loading" ? h("section", { class: "aisec" }, h("h2", null, "What we found"), shimmer(3)) : null;
+  return (p.ai.findings || []).length ? h("section", { class: "aisec" }, h("div", { class: "aihead" }, h("h2", null, "What we found"), aiBadge(p)),
+    h("div", { class: "aifind" }, p.ai.findings.map((f) => h("article", { class: "card aif" }, h("span", { class: "gk" }, f.area), h("h3", null, f.title), h("p", null, f.text))))) : null;
+}
+
+// Which levels are outside their usual range (the Labs page).
+function aiLevels(p) {
+  if (!aiReady(p)) return p.ai?.status === "loading" ? h("section", { class: "aisec" }, h("h2", null, "Your levels"), shimmer(2)) : null;
+  return p.ai.levels ? h("section", { class: "aisec" }, h("div", { class: "aihead" }, h("h2", null, "Your levels"), aiBadge(p)), h("p", { class: "standfirst" }, p.ai.levels)) : null;
 }
 
 // ------------------------------------------------------------------ labs & cycles
@@ -254,6 +308,7 @@ export function labsView(p) {
   const keys = Object.keys(p.labs);
   return h("div", { class: "page" },
     pagehead("Labs and cycles", "Each result against its reference range. Dots on the line are individual results; the shaded band is the reference range."),
+    aiLevels(p),
     keys.length ? h("div", { class: "labgrid" }, keys.map((k) => labCard(k, p.labs[k], p, { hit: hits.has(k) }))) : h("p", { class: "muted", style: { marginTop: "24px" } }, "No lab results on file."),
     cyclesBlock(p));
 }
@@ -332,12 +387,16 @@ export function historyView(p) {
 // ------------------------------------------------------------------ what would help
 export function helpView(p) {
   const asks = p.scenarios.flatMap((sc) => sc.missing_data.map((m) => ({ ...m, area: AREAS[sc.scenario].name })));
+  const data = aiReady(p) ? (p.ai.suggestions || []).filter((x) => x.group === "data") : [];
   return h("div", { class: "page" },
     pagehead("What would help", "When something is missing, we say so, and say why it matters, instead of guessing."),
-    asks.length ? h("div", { class: "asklist" }, asks.map((m, i) => h("div", { class: "askrow" },
-      h("span", { class: "n" }, String(i + 1).padStart(2, "0")), h("div", null, h("b", null, m.item), h("p", null, m.reason)), h("span", { class: "for" }, m.area))))
+    aiNotice(p, retryAI),
+    data.length ? h("section", { class: "aisec" }, h("div", { class: "aihead" }, h("h2", null, "In your words"), aiBadge(p)),
+      data.map((i) => h("article", { class: "card aif" }, h("h3", null, i.title), h("p", null, i.why), i.ask ? h("p", { class: "ask" }, i.ask) : null))) : null,
+    asks.length ? h("div", null, h("h2", { class: "morehead" }, "From the statistical analysis"), h("div", { class: "asklist" }, asks.map((m, i) => h("div", { class: "askrow" },
+      h("span", { class: "n" }, String(i + 1).padStart(2, "0")), h("div", null, h("b", null, m.item), h("p", null, m.reason)), h("span", { class: "for" }, m.area)))))
       : h("p", { class: "standfirst" }, "Nothing important is missing for the areas we check."),
-    h("p", { class: "fine" }, "Adding new information and re-running the analysis is planned for a later release. For now, this list is something to bring to your care team."));
+    h("p", { class: "fine" }, "This list is something to bring to your care team."));
 }
 
 // ------------------------------------------------------------------ data quality
