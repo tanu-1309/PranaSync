@@ -71,6 +71,42 @@ audit_log = Table(
     Column("event", String(32), nullable=False), Column("detail", JSONT),
     Index("ix_audit_patient_ts", "patient_id", "ts"))
 
+narratives = Table(   # the AI-written text for each patient, kept until the facts it was written from change
+    "narratives", metadata,
+    Column("patient_id", String(32), primary_key=True), Column("facts_hash", String(40), nullable=False),
+    Column("model", String(80)), Column("payload", JSONT, nullable=False), Column("created_at", TS, server_default=func.now()))
+
+# ---- a record built up one document at a time (people who register and upload their own documents)
+accounts = Table(   # one row per person who registered themselves; the password hash itself lives in `users`
+    "accounts", metadata,
+    Column("patient_id", String(32), primary_key=True), Column("display_name", String(80)), Column("created_at", TS, server_default=func.now()))
+
+profiles = Table(   # personal details a person has entered or corrected themselves (name, age, sex, contact…). No foreign key: people from the training workbooks have no `accounts` row
+    "profiles", metadata,
+    Column("patient_id", String(32), primary_key=True), Column("data", JSONT, nullable=False), Column("updated_at", TS, server_default=func.now()))
+
+documents = Table(  # one row per uploaded file. The file itself is kept on disk; here only what we need to list, de-duplicate and delete it
+    "documents", metadata,
+    Column("doc_id", String(36), primary_key=True), Column("patient_id", String(32), ForeignKey("accounts.patient_id", ondelete="CASCADE"), nullable=False),
+    Column("filename", String(200), nullable=False), Column("sha256", String(64), nullable=False), Column("size", Integer), Column("kind", String(32)),
+    Column("status", String(16), nullable=False), Column("message", Text), Column("n_values", Integer, server_default="0"),
+    Column("uploaded_at", TS, server_default=func.now()),
+    Index("ix_documents_patient", "patient_id", "uploaded_at"), Index("ux_documents_patient_hash", "patient_id", "sha256", unique=True))
+
+observations = Table(   # every value read from a document, with where it came from, so any number can be traced and removed with its document
+    "observations", metadata,
+    Column("id", BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True),
+    Column("patient_id", String(32), nullable=False), Column("doc_id", String(36), ForeignKey("documents.doc_id", ondelete="CASCADE"), nullable=False),
+    Column("param", String(32), nullable=False), Column("value", Float, nullable=False), Column("unit", String(24)), Column("observed_on", Date),
+    Column("source_text", Text), Column("created_at", TS, server_default=func.now()),
+    Index("ix_obs_patient_param", "patient_id", "param", "observed_on"))
+
+risk_snapshots = Table(   # the risk result after each document was added, so the page can show how the picture grew
+    "risk_snapshots", metadata,
+    Column("id", BigInteger().with_variant(Integer, "sqlite"), primary_key=True, autoincrement=True),
+    Column("patient_id", String(32), nullable=False), Column("doc_id", String(36)), Column("result", JSONT, nullable=False),
+    Column("created_at", TS, server_default=func.now()), Index("ix_snap_patient", "patient_id", "created_at"))
+
 _engine = None
 
 
@@ -162,6 +198,23 @@ def get_record(patient_id: str) -> dict | None:
     return row.payload if isinstance(row.payload, dict) else json.loads(row.payload)
 
 
+# ----------------------------------------------------------------------------- AI-written text
+def get_narrative(patient_id: str, facts_hash: str) -> dict | None:
+    """The stored AI text, only if it was written from exactly these facts."""
+    with engine().connect() as con:
+        row = con.execute(select(narratives.c.payload, narratives.c.facts_hash).where(narratives.c.patient_id == patient_id)).first()
+    if not row or row.facts_hash != facts_hash:
+        return None
+    return row.payload if isinstance(row.payload, dict) else json.loads(row.payload)
+
+
+def save_narrative(patient_id: str, facts_hash: str, model: str, payload: dict) -> None:
+    clean = json.loads(_dumps(payload))
+    with engine().begin() as con:
+        stmt = _insert(narratives).values(patient_id=patient_id, facts_hash=facts_hash, model=model[:80], payload=clean)
+        con.execute(stmt.on_conflict_do_update(index_elements=["patient_id"], set_={"facts_hash": stmt.excluded.facts_hash, "model": stmt.excluded.model, "payload": stmt.excluded.payload, "created_at": func.now()}))
+
+
 # ----------------------------------------------------------------------------- accounts
 def get_user_hash(patient_id: str) -> str | None:
     with engine().connect() as con:
@@ -180,6 +233,121 @@ def set_user_hashes(hashes: dict[str, str]) -> None:
 def user_ids() -> set[str]:
     with engine().connect() as con:
         return {r[0] for r in con.execute(select(users.c.patient_id))}
+
+
+# ----------------------------------------------------------------------------- registered people, documents, observations
+def is_registered(patient_id: str) -> bool:
+    with engine().connect() as con:
+        return con.execute(select(accounts.c.patient_id).where(accounts.c.patient_id == patient_id)).first() is not None
+
+
+def create_account(patient_id: str, display_name: str, pw_hash: str) -> bool:
+    """False when the ID is already taken."""
+    with engine().begin() as con:
+        if con.execute(select(accounts.c.patient_id).where(accounts.c.patient_id == patient_id)).first() or \
+                con.execute(select(users.c.patient_id).where(users.c.patient_id == patient_id)).first():
+            return False
+        con.execute(accounts.insert().values(patient_id=patient_id, display_name=display_name[:80]))
+        con.execute(users.insert().values(patient_id=patient_id, pw_hash=pw_hash))
+    return True
+
+
+def get_display_name(patient_id: str) -> str | None:
+    with engine().connect() as con:
+        return con.execute(select(accounts.c.display_name).where(accounts.c.patient_id == patient_id)).scalar()
+
+
+def set_display_name(patient_id: str, name: str) -> None:
+    with engine().begin() as con:
+        con.execute(accounts.update().where(accounts.c.patient_id == patient_id).values(display_name=name[:80]))
+
+
+def get_profile(patient_id: str) -> dict:
+    with engine().connect() as con:
+        row = con.execute(select(profiles.c.data).where(profiles.c.patient_id == patient_id)).scalar()
+    return dict(row or {})
+
+
+def save_profile(patient_id: str, data: dict) -> None:
+    with engine().begin() as con:
+        if con.execute(select(profiles.c.patient_id).where(profiles.c.patient_id == patient_id)).first():
+            con.execute(profiles.update().where(profiles.c.patient_id == patient_id).values(data=data, updated_at=func.now()))
+        else:
+            con.execute(profiles.insert().values(patient_id=patient_id, data=data))
+
+
+def find_document(patient_id: str, sha256: str) -> dict | None:
+    with engine().connect() as con:
+        r = con.execute(select(documents).where(documents.c.patient_id == patient_id, documents.c.sha256 == sha256)).mappings().first()
+    return dict(r) if r else None
+
+
+def add_document(doc: dict, obs: list[dict]) -> None:
+    with engine().begin() as con:
+        # People from the training workbooks (PC0001…) sign in with an existing user row but have no `accounts` row; the first upload gives them one.
+        if not con.execute(select(accounts.c.patient_id).where(accounts.c.patient_id == doc["patient_id"])).first():
+            con.execute(accounts.insert().values(patient_id=doc["patient_id"], display_name=doc["patient_id"]))
+        con.execute(documents.insert().values(**doc))
+        if obs:
+            con.execute(observations.insert(), [{**o, "patient_id": doc["patient_id"], "doc_id": doc["doc_id"]} for o in obs])
+
+
+def list_documents(patient_id: str) -> list[dict]:
+    with engine().connect() as con:
+        rows = con.execute(select(documents).where(documents.c.patient_id == patient_id).order_by(documents.c.uploaded_at.desc())).mappings().all()
+    return [dict(r) for r in rows]
+
+
+def delete_document(patient_id: str, doc_id: str) -> bool:
+    """Removes the document and every value read from it (done explicitly so SQLite, which skips foreign-key cascades by default, behaves like PostgreSQL)."""
+    with engine().begin() as con:
+        if not con.execute(select(documents.c.doc_id).where(documents.c.doc_id == doc_id, documents.c.patient_id == patient_id)).first():
+            return False
+        con.execute(delete(observations).where(observations.c.doc_id == doc_id))
+        con.execute(delete(documents).where(documents.c.doc_id == doc_id))
+    return True
+
+
+def document_observations(patient_id: str, doc_id: str) -> list[dict]:
+    with engine().connect() as con:
+        rows = con.execute(select(observations.c.param, observations.c.value, observations.c.unit, observations.c.observed_on, observations.c.source_text)
+                           .where(observations.c.patient_id == patient_id, observations.c.doc_id == doc_id).order_by(observations.c.id.asc())).mappings().all()
+    return [dict(r) for r in rows]
+
+
+def get_document(patient_id: str, doc_id: str) -> dict | None:
+    with engine().connect() as con:
+        r = con.execute(select(documents).where(documents.c.doc_id == doc_id, documents.c.patient_id == patient_id)).mappings().first()
+    return dict(r) if r else None
+
+
+def replace_observations(patient_id: str, doc_id: str, obs: list[dict], status: str = "confirmed") -> None:
+    """After a person corrects the values read from one document: swap that document's values for the corrected ones."""
+    with engine().begin() as con:
+        con.execute(delete(observations).where(observations.c.doc_id == doc_id, observations.c.patient_id == patient_id))
+        if obs:
+            con.execute(observations.insert(), [{**o, "patient_id": patient_id, "doc_id": doc_id} for o in obs])
+        con.execute(documents.update().where(documents.c.doc_id == doc_id, documents.c.patient_id == patient_id).values(n_values=len(obs), status=status))
+
+
+def read_observations(patient_id: str) -> list[dict]:
+    """Every stored value, oldest first. The caller keeps the latest value of each parameter."""
+    with engine().connect() as con:
+        rows = con.execute(select(observations.c.param, observations.c.value, observations.c.unit, observations.c.observed_on, observations.c.doc_id,
+                                  observations.c.created_at).where(observations.c.patient_id == patient_id)
+                           .order_by(observations.c.observed_on.asc().nulls_first(), observations.c.created_at.asc(), observations.c.id.asc())).mappings().all()
+    return [dict(r) for r in rows]
+
+
+def save_snapshot(patient_id: str, doc_id: str | None, result: dict) -> None:
+    with engine().begin() as con:
+        con.execute(risk_snapshots.insert().values(patient_id=patient_id, doc_id=doc_id, result=json.loads(_dumps(result))))
+
+
+def read_snapshots(patient_id: str, limit: int = 20) -> list[dict]:
+    with engine().connect() as con:
+        rows = con.execute(select(risk_snapshots).where(risk_snapshots.c.patient_id == patient_id).order_by(risk_snapshots.c.created_at.desc()).limit(limit)).mappings().all()
+    return [dict(r) for r in rows]
 
 
 # ----------------------------------------------------------------------------- audit and housekeeping
