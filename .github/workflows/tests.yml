@@ -1,0 +1,48 @@
+name: tests
+
+# Runs the checks on every push and pull request. The browser tests are slow, so they run only when started by hand (Actions tab, "Run workflow").
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      browser:
+        description: "Also run the browser tests"
+        type: boolean
+        default: false
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio ruff httpx
+      - name: Lint
+        run: ruff check src scripts tests finetune
+      - name: Tests
+        # The trained risk model and the knowledge documents are not in git, so the tests that need them skip themselves here.
+        run: PYTHONPATH=src python -m pytest -q
+
+  browser:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.browser }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio playwright httpx
+          playwright install --with-deps chromium
+      - name: Browser tests
+        run: RUN_E2E=1 PYTHONPATH=src python -m pytest tests/test_e2e.py -q

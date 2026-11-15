@@ -34,3 +34,13 @@ team_bundles/
 # private development PostgreSQL (data and generated passwords)
 data/pgdata/
 data/.pg_*
+
+# medical knowledge base: the saved source texts stay out of git (rebuild them with scripts/fetch_who_factsheets.py); the manifest is kept
+data/knowledge/*.md
+data/knowledge/*.txt
+exports/
+
+data/uploads/
+models/*.txt
+data/documents.db
+data/.docstore_key

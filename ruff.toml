@@ -1,0 +1,2 @@
+# Lint settings. Notebooks are teaching material written for a person to read cell by cell, so they are left out of the style check.
+extend-exclude = ["*.ipynb"]
