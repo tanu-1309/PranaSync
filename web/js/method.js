@@ -7,7 +7,7 @@ const STEPS = [
   ["01", "Understand", "We read your workbook, clean it, and merge everything onto one dated timeline: vitals, wearables, labs, cycles, history, medications, notes.", "prana.data"],
   ["02", "Connect", "Each change is linked back to your record: prior findings, related medications, family history, earlier labs, tagged before or during the pattern.", "prana.insight.context_linker"],
   ["03", "Detect", "Every signal is compared with your own first 60 days. A pattern surfaces only when several related signals move together.", "prana.analysis"],
-  ["04", "Explain", "What changed, by how much, since when, with the exact evidence. Code does the numbers; words only describe them.", "prana.insight.explainer"],
+  ["04", "Explain", "What changed, by how much, since when, with the exact evidence. Code does the numbers; an AI model writes the words from those facts, and every number it writes is checked against them.", "prana.ai.narrative"],
   ["05", "Ask", "We say what is missing and why it matters: a stale HbA1c, a missing hormone panel, a device that stopped syncing.", "prana.insight.missing_data"],
 ];
 const TESTS = [
@@ -24,7 +24,7 @@ export function methodView() {
     sec("01", "Five steps, end to end"),
     h("div", { class: "steps" }, STEPS.map(([n, t, d, c]) => h("article", { class: "step" }, h("span", { class: "n" }, n), h("h3", null, t), h("p", null, d), h("code", null, c)))),
     sec("02", "Five tests before a signal counts as “changed”", "Each test removes one kind of false alarm: tiny drifts, noisy signals, random wiggles, and dips that recovered."),
-    h("div", { class: "tests" }, TESTS.map(([b, t, d]) => h("div", { class: "test" }, h("div", { class: "big" }, b), h("h4", null, t), h("p", null, d)))),
+    h("div", { class: "tests" }, TESTS.map(([b, t, d]) => h("div", { class: "test" }, h("div", { class: "big" }, b), h("h3", null, t), h("p", null, d)))),
     sec("03", "Then three more conditions make it a pattern"),
     h("ul", { class: "list-x" }, ["At least three signals in the same health area have changed.", "Their change points fall within 150 days of each other (labs are exempt, since they are sparse).", "At least one core signal is among them: blood pressure for hypertension, cycle length or testosterone for PCOS, HbA1c, glucose, weight or steps for metabolic health."].map((t) => h("li", null, t))),
     sec("04", "Two questions, two kinds of reference", "Change detection and reference ranges answer different questions. We report both side by side and never let one hide the other."),
@@ -35,9 +35,10 @@ export function methodView() {
     h("div", { class: "two" },
       h("div", null, h("h3", null, "It is"), h("ul", { class: "list-x yes" }, ["A proof-of-concept that adds clinical context to ongoing data, and the reverse.", "Explainable: every insight lists its evidence, its history link and its limits.", "Extensible: the three areas are configuration, so a fourth needs no new model.", "Honest about gaps: it analyses what exists, then asks for what’s missing."].map((t) => h("li", null, t)))),
       h("div", null, h("h3", null, "It is not"), h("ul", { class: "list-x no" }, ["A diagnosis, or a replacement for your clinician.", "A threshold alarm or a black-box risk score.", "Three isolated disease classifiers.", "A production clinical decision system. It is validated on planted patterns, not clinical outcomes."].map((t) => h("li", null, t))))),
-    sec("06", "Where the project stands", "Four of ten work packages are done. The rest are planned with PranaChain’s feedback in the loop."),
-    h("div", { class: "roadmap" }, Array.from({ length: 10 }, (_, i) => i + 1).map((n) => h("div", { class: `wp ${n <= 4 ? "done" : ""}` }, h("b", null, n), n <= 4 ? "done" : "planned"))),
-    h("p", { class: "fine" }, "Next: clinician review of the reference ranges, AI-written suggestions that are checked against the evidence before anyone sees them, real workbooks reviewed with PranaChain, PostgreSQL, adherence-aware baselines, user testing with patients and clinicians, a fourth health area, fairness checks, and handoff."));
+    sec("06", "Who writes what", "The words in the portal are written by an AI model. Code only does the arithmetic and the statistical tests, and its results have their own page."),
+    h("div", { class: "two" },
+      h("div", null, h("h3", null, "Written by the AI model"), h("ul", { class: "list-x yes" }, ["The headline, overview and clinician summary on Home.", "The four at-a-glance cards, the findings, the suggestions and the questions for your doctor.", "The explanations of your heart and diabetes estimates and of each trend.", "Prana’s answers in the chat.", "Every number it writes must appear in the facts it was given, or the text is not shown. If the model is off, busy or fails a check, the page says so: there is no template text behind it."].map((t) => h("li", null, t)))),
+      h("div", null, h("h3", null, "Computed by code, with no AI"), h("ul", { class: "list-x" }, ["Each measurement against your own first 60 days, the trend tests and the change points.", "Where each level sits against published reference ranges.", "The trend projections. The three risk classes come from a trained model, described on The models tab.", "All of this is on the Statistical findings page, which no AI writes.", "Emergency, medicine and diagnosis questions get a fixed, careful reply, never an AI answer."].map((t) => h("li", null, t))))));
 }
 
 function pair(label, ours, base, { lowerIsBetter = false } = {}) {

@@ -1,0 +1,41 @@
+/* Risk cards (Home, Outlook), the missing-parameters box, and the upload page. Rules are scoped to their own class names. */
+.rk-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 16px; margin-top: 18px; }
+.rk-card { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--tone, var(--slate)); border-radius: var(--r); padding: 20px; display: grid; gap: 14px; align-content: start; min-width: 0; }
+.rk-card.skel { min-height: 220px; background: linear-gradient(90deg, var(--surface-2), var(--surface), var(--surface-2)); background-size: 200% 100%; animation: rkshim 1.4s infinite; border-top-color: var(--line); }
+@keyframes rkshim { to { background-position: -200% 0; } }
+.rk-card .gk { font: 500 12.5px var(--mono); color: var(--ink-3); }
+.rk-class { font: 600 clamp(26px, 3vw, 34px)/1.1 var(--sans); color: var(--tone, var(--ink)); letter-spacing: -.02em; }
+.rk-card h4 { font: 500 12px var(--mono); color: var(--ink-3); margin: 0 0 8px; }
+.rk-ev { display: grid; gap: 6px; }
+.rk-evl { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-2); }
+.rk-evl b { font: 600 20px var(--sans); color: var(--ink); } .rk-evl small { font: 400 12px var(--mono); color: var(--ink-3); }
+.rk-evl em { font-style: normal; font: 500 12px var(--mono); color: var(--ink-3); margin-left: auto; }
+.rk-bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+.rk-bar i { display: block; height: 100%; border-radius: 99px; background: var(--violet); }
+.rk-drv { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rk-drv li { display: grid; grid-template-columns: 18px 1fr auto; column-gap: 8px; align-items: baseline; font-size: 14px; }
+.rk-drv .ar { font-size: 11px; } .rk-drv .raises .ar { color: var(--ember); } .rk-drv .lowers .ar { color: var(--teal); }
+.rk-drv .v { color: var(--ink-2); font-size: 13px; white-space: nowrap; }
+.rk-drv .s { grid-column: 2 / 4; font-size: 12.5px; color: var(--ink-3); }
+.rk-miss { font-size: 13px; color: var(--ink-2); margin: 0; } .rk-miss b { color: var(--gold); } .rk-miss.ok { color: var(--teal); }
+.rk-note { font-size: 14px; color: var(--ink-2); margin: 0; }
+.rk-box { display: flex; gap: 16px 24px; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-top: 18px; padding: 18px 20px; border: 1px dashed var(--line-2); border-radius: var(--r); background: var(--surface-2); }
+.rk-box h3 { font: 600 17px var(--sans); margin: 0 0 6px; } .rk-box p { margin: 0 0 4px; font-size: 14.5px; color: var(--ink-2); max-width: 70ch; }
+.rk-box .btn { width: auto; }
+
+.upload .up-drop { display: grid; justify-items: center; gap: 6px; text-align: center; padding: 34px 20px; margin-top: 20px; border: 2px dashed var(--line-2); border-radius: var(--r); cursor: pointer; background: var(--surface); color: var(--ink-2); }
+.upload .up-drop.on, .upload .up-drop:hover, .upload .up-drop:focus-visible { border-color: var(--violet); background: var(--surface-2); outline: none; }
+.upload .up-drop b { color: var(--ink); font-size: 17px; } .upload .up-drop span { font-size: 13.5px; max-width: 54ch; }
+.upload .up-out { margin-top: 16px; } .upload .up-busy { display: flex; gap: 8px; align-items: center; color: var(--ink-2); }
+.upload .up-ok { border: 1px solid var(--line); border-left: 4px solid var(--teal); border-radius: var(--r); padding: 16px 18px; background: var(--surface); overflow-x: auto; }
+.upload .up-ok h3 { margin: 0 0 10px; font: 600 17px var(--sans); }
+.upload .up-table { border-collapse: collapse; width: 100%; font-size: 13.5px; min-width: 420px; }
+.upload .up-table th, .upload .up-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.upload .up-table th { font: 500 11.5px var(--mono); color: var(--ink-3); } .upload .faint { color: var(--ink-3); font-size: 12.5px; overflow-wrap: anywhere; }
+.upload .up-h { margin-top: 36px; font-size: 24px; }
+.upload .up-list { margin-top: 32px; display: grid; gap: 8px; } .upload .up-list h3 { font: 600 17px var(--sans); margin: 0 0 4px; }
+.upload .up-row { display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.upload .up-row small { display: block; color: var(--ink-3); font-size: 12.5px; margin-top: 2px; }
+.upload .up-row .btn { width: auto; height: auto; padding: 7px 14px; }
+.upload .err { display: flex; gap: 8px; align-items: center; color: var(--ember); }
+.rk-card.tone-slate .rk-class { font-size: 22px; color: var(--ink-2); }
