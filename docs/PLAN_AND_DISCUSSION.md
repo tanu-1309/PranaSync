@@ -1,7 +1,7 @@
 # Checkpoint discussion: pros, cons, proposed changes and the remaining plan
 
 ## Where we are
-10 equal work packages (WP) cover the term. **WP 1–4 are done (≈ 40 %)** and are what this repository contains.
+10 equal work packages (WP) cover the term. **By week 8, WP 1–7 are done (≈ 70 %).** WP 7 was re-planned after PranaChain’s feedback at the third open office hours (shorter, friendlier interface; a trend with the factors behind it; risk questions answered with their reasons; AI-written text). The original WP 7 items (adherence and habits as signals, a medication-aware baseline, “add missing data and re-run”) are not built yet and moved to WP 8.
 
 | WP | Content | Status |
 |---|---|---|
@@ -11,8 +11,8 @@
 | 4 | History linking, evidence pack, missing-data requests, template explanation, dashboard, validation on test data | done |
 | 5 | Run and check on all 900 real workbooks | week 6 |
 | 6 | Tune rules with Prana Chain feedback; PostgreSQL for the full cohort; REST API | week 7 |
-| 7 | Adherence + habits as signals; medication-aware baseline; "add missing data and re-run" | week 8 |
-| 8 | **AI suggestions** (LLM reword of the evidence pack via a HIPAA-eligible service, with output checks); patient vs clinician view; user testing | weeks 7–8 |
+| 7 | **Re-planned after partner feedback:** AI-written portal text and chat with output checks (every number must come from the record); 10-year heart and diabetes estimates with their factors; trend watch list with projections; concise patient interface with a separate Statistical findings page; PostgreSQL-backed accounts, password change and guest mode; QA automation | done (week 8) |
+| 8 | User testing with patients and clinicians; clinician review of the AI wording and reference ranges; consent and a provider agreement for the AI service (HIPAA-eligible); **moved from WP 7:** adherence and habits as signals, medication-aware baseline, “add missing data and re-run” | weeks 8–9 |
 | 9 | 4th health area as configuration only (kidney); fairness by sex/age; sensitivity analysis | weeks 8–9 |
 | 10 | Handoff docs, final validation, final pitch | weeks 9–10 |
 
