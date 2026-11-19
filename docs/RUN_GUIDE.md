@@ -125,3 +125,51 @@ Real data has no labels, so `validate.py` only works on the generated data. For 
 | Missing data | wanted items per area: absent, too old, or < 70 % of days | `insight/missing_data.py` |
 | Explanation | template built only from the evidence pack + fixed disclaimer | `insight/explainer.py` |
 | Settings for all three areas | one YAML file | `config/scenarios.yaml` |
+
+## Running the newer parts (risk model, uploads, document store, clinical view)
+
+```powershell
+# 1. the database (PostgreSQL stops after a restart and has to be started again)
+cd ..\PranaChain_checkpoint            # the folder that holds scripts\pg_local.py
+python scripts/pg_local.py start
+
+# 2. the portal
+cd ..\PranaSync_AI
+$env:PYTHONPATH = "src"
+python scripts/serve.py --port 8020 --no-browser          # then open http://127.0.0.1:8020
+
+# 3. the risk model (only if models/ is empty): builds the training table from the workbooks, then trains
+python scripts/build_risk_table.py --raw <folder of the 900 .xlsx files>
+python scripts/train_risk_model.py
+
+# 4. photos and scans (optional, on this computer)
+pip install rapidocr-onnxruntime pypdfium2
+
+# 5. try it: sample documents to upload
+python scripts/make_sample_documents.py                  # writes sample_documents\  (read its README.txt first)
+```
+
+Settings in `.env` (never commit it):
+
+| Setting | What it does |
+|---|---|
+| `DATABASE_URL` | the main database (PostgreSQL; SQLite if empty) |
+| `DOCSTORE_URL` | the document store (default `sqlite:///data/documents.db`) |
+| `PRANA_DOCSTORE_KEY` | the key that seals documents (default: a file `data/.docstore_key`; back it up) |
+| `PRANA_ADMIN_IDS` | comma-separated IDs that may read (never change) anyone's documents |
+| `PRANA_EXTRACT_AI` | `1` lets Nemotron read values the pattern reader missed (identity removed first); `0` turns it off |
+| `PRANA_LLM_*`, `PRANA_MEDGEMMA_*` | the two language models |
+| `PRANA_AI_SHOTS` | `1` puts the two most similar worked examples from our own data in front of the insight prompt (off until `finetune/eval_prompting.py` has measured it) |
+
+Checks you can run:
+
+```powershell
+python -m ruff check src scripts tests finetune
+python -m pytest -q                                      # about 5 minutes
+$env:RUN_E2E = "1"; python -m pytest tests/test_e2e.py -q   # browser tests (needs playwright and a browser)
+python scripts/eval_extraction.py --n 20                 # which document reader is best (calls Nemotron)
+python finetune/build_dataset.py; python finetune/evaluate.py --reference
+python scripts/make_data_dictionary.py                   # rewrites docs/DATA_DICTIONARY.md
+```
+
+Where to read more: `docs/SITE_STRUCTURE.md` (the five places and the clinical view), `docs/ARCHITECTURE_UPLOAD.md` (upload, OCR, document store, which reader is best), `docs/DATA_DICTIONARY.md`, `docs/RISK_MODEL_AND_UPLOADS.md`, `docs/KNOWLEDGE_BASE.md`, `finetune/README.md`, `docs/WHAT_IS_STILL_LACKING.md`, `docs/TEAM_TASKS.md`.
