@@ -1,0 +1,139 @@
+/* Analytics & Intelligence. Every rule is scoped under .analytics, so no other page can change. It reuses the portal's colour tokens and fonts. */
+.analytics { padding-bottom: 60px; }
+.analytics .an-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 40px; margin-top: 28px; }
+.analytics .an-sec, .analytics .an-card, .analytics .an-block { min-width: 0; }
+.analytics .an-chart { max-width: 100%; }
+.analytics .an-sec > header { display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: baseline; margin-bottom: 16px; }
+.analytics .an-sec > header h2 { font-size: clamp(22px, 2.4vw, 28px); font-weight: 600; margin: 0; }
+.analytics .an-sec > header p { grid-column: 2; margin-top: 6px; color: var(--ink-2); max-width: 70ch; font: 400 16px/1.55 var(--serif); }
+.analytics .an-num { font: 500 13px var(--mono); color: var(--violet); border: 1.5px solid var(--violet); border-radius: 999px; width: 28px; height: 28px; display: grid; place-items: center; }
+.analytics .an-sec > header .an-num:empty { display: none; }
+
+.analytics .an-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+.analytics .an-tile { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 4px; }
+.analytics .an-tile .l { font: 500 12px var(--mono); color: var(--ink-3); }
+.analytics .an-tile b { font: 600 24px/1.2 var(--sans); color: var(--ink); overflow-wrap: anywhere; }
+.analytics .an-tile .sub { font-size: 12.5px; color: var(--ink-2); }
+
+.analytics .an-block { border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); margin-bottom: 10px; }
+.analytics .an-block > summary { list-style: none; cursor: pointer; display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; padding: 14px 16px; }
+.analytics .an-block > summary::-webkit-details-marker { display: none; }
+.analytics .an-block > summary::before { content: "+"; font: 500 16px var(--mono); color: var(--violet); width: 14px; }
+.analytics .an-block[open] > summary::before { content: "−"; }
+.analytics .an-block > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.analytics .an-sub { font: 400 13px var(--mono); color: var(--ink-3); }
+.analytics .an-inner { padding: 4px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.analytics .an-scroll { max-width: 100%; }
+
+.analytics .an-scroll { overflow-x: auto; }
+.analytics .an-table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 560px; }
+.analytics .an-table th, .analytics .an-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.analytics .an-table thead th { font: 500 11.5px var(--mono); color: var(--ink-3); white-space: nowrap; }
+.analytics .an-table tbody th { font-weight: 600; color: var(--ink); min-width: 150px; }
+.analytics .an-table small { display: block; font: 400 11.5px/1.4 var(--sans); color: var(--ink-3); margin-top: 2px; }
+
+.analytics .an-card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; align-content: start; }
+.analytics .an-card h3 { font: 600 16px var(--sans); margin: 0; }
+.analytics .an-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.analytics .an-row { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.analytics .an-note { font-size: 13px; line-height: 1.55; color: var(--ink-2); max-width: 80ch; margin: 0; }
+.analytics .an-warn { color: var(--ember); font-weight: 600; }
+.analytics .an-empty { color: var(--ink-3); font-size: 14px; margin: 0; }
+.analytics .an-lead { font: 500 18px/1.45 var(--serif); margin: 0; }
+.analytics .an-h4 { font: 600 12.5px var(--mono); color: var(--ink-2); display: block; margin: 4px 0; }
+.analytics .an-list ul, .analytics .an-card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; font-size: 14px; line-height: 1.5; }
+.analytics .an-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.analytics .an-btn[disabled] { opacity: .45; cursor: not-allowed; transform: none; box-shadow: none; }
+.analytics .an-panel-body { display: grid; gap: 12px; }
+.analytics .an-meta { display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; font-size: 13px; }
+.analytics .an-meta dt { font: 500 12px var(--mono); color: var(--ink-3); }
+.analytics .an-meta dd { margin: 0; overflow-wrap: anywhere; }
+
+.analytics .an-chart { width: 100%; height: auto; display: block; overflow: visible; }
+.analytics .an-chart .ax { stroke: var(--line); stroke-width: 1; }
+.analytics .an-chart .tk { font: 400 12.5px var(--mono); fill: var(--ink-2); }
+.analytics .an-chart .tk.lab { font: 500 13.5px var(--sans); fill: var(--ink); }
+.analytics .an-chart .val { font: 600 13.5px var(--mono); fill: var(--ink); }
+.analytics .an-chart .gr { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 4; }
+.analytics .an-chart .stripe { fill: var(--lav); opacity: .45; }
+.analytics .an-chart .ln { stroke-width: 1.6; stroke-linejoin: round; }
+.analytics .an-chart .ln.d { stroke: var(--ink-3); stroke-width: 1.6; opacity: .9; }
+.analytics .an-chart .ln.r { stroke: var(--violet); stroke-width: 2; }
+.analytics .an-chart .ln.f { stroke: var(--ember); stroke-dasharray: 6 5; stroke-width: 2.6; }
+.analytics .an-chart .band { fill: var(--ember); opacity: .16; }
+.analytics .an-chart .vl { stroke: var(--ember); stroke-dasharray: 3 3; stroke-width: 1.2; }
+.analytics .an-chart .hl { stroke: var(--slate); stroke-dasharray: 2 3; stroke-width: 1.3; }
+.analytics .an-chart .hl.a { stroke: var(--ember); }
+.analytics .an-chart .bar { fill: var(--tone, var(--slate)); }
+.analytics .an-chart .track { fill: var(--cell-neutral); opacity: .5; }
+
+.analytics .an-legend { list-style: none; padding: 0; margin: 0 0 4px; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12.5px; color: var(--ink-2); }
+.analytics .an-k { font: 500 11px var(--mono); padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); white-space: nowrap; }
+.analytics .an-k-statistical { color: var(--blue); border-color: var(--blue); }
+.analytics .an-k-rule_based, .analytics .an-k-rule { color: var(--gold); border-color: var(--gold); }
+.analytics .an-k-ai { color: var(--violet); border-color: var(--violet); }
+.analytics .an-k-fixed, .analytics .an-k-unavailable, .analytics .an-k-clinically { color: var(--ink-3); }
+.analytics .an-rep { list-style: none; padding: 0; display: grid; gap: 8px; }
+.analytics .an-rep li { line-height: 1.5; }
+
+.analytics .an-flow { display: grid; gap: 6px; max-width: 760px; margin: 0 auto; width: 100%; }
+.analytics .an-arrow { text-align: center; color: var(--violet); font: 500 18px var(--mono); line-height: 1; }
+.analytics .an-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.analytics .an-node { border: 1.5px solid var(--violet); border-radius: var(--r); background: var(--bg); }
+.analytics .an-node.missing { border-style: dashed; border-color: var(--ember); }
+.analytics .an-node > summary { list-style: none; cursor: pointer; padding: 10px 12px; display: grid; gap: 4px; }
+.analytics .an-node > summary::-webkit-details-marker { display: none; }
+.analytics .an-node > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.analytics .an-state { font: 500 12px var(--mono); }
+.analytics .an-state.on { color: var(--teal); } .analytics .an-state.off { color: var(--gold); }
+.analytics .an-ok { font: 500 11.5px var(--mono); color: var(--teal); } .analytics .an-bad { font: 500 11.5px var(--mono); color: var(--ember); }
+.analytics .an-files { list-style: none; padding: 0; margin: 0; display: grid; gap: 2px; font-size: 12.5px; }
+.analytics .an-files code { font: 400 12px var(--mono); overflow-wrap: anywhere; }
+
+.analytics .an-askbox { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); display: grid; gap: 10px; }
+.analytics .an-askbox h3 { font: 600 16px var(--sans); margin: 0; }
+.analytics .an-ask { width: 100%; max-width: 70ch; font: 400 14px/1.5 var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 12px; resize: vertical; }
+.analytics .an-ask:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+@media (max-width: 720px) {
+  .analytics .an-split { grid-template-columns: 1fr; }
+  .analytics .an-sec > header { grid-template-columns: 1fr; }
+  .analytics .an-sec > header p { grid-column: 1; }
+  .analytics .an-meta { grid-template-columns: 1fr; }
+  .analytics .an-meta dd { margin-bottom: 6px; }
+}
+@media print { .analytics .an-block:not([open]) > .an-inner { display: block; } }
+
+/* the simpler layout: a summary strip, graph cards with a Nemotron line, and insight cards with their evidence */
+.analytics .an-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.analytics .an-strip > div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px 14px; display: grid; gap: 2px; }
+.analytics .an-strip b { font: 600 22px/1.2 var(--sans); }
+.analytics .an-strip span { font: 500 11.5px var(--mono); color: var(--ink-3); }
+.analytics .an-by { font: 600 12px var(--mono); padding: 3px 10px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+.analytics .an-by.nem { color: var(--teal); } .analytics .an-by.med { color: var(--violet); }
+.analytics .an-graphs { display: grid; grid-template-columns: 1fr; gap: 22px; margin-top: 18px; }
+.analytics .an-explain { margin: 0; padding: 16px 18px; background: var(--bg); border-left: 4px solid var(--teal); font-size: 17px; line-height: 1.65; }
+.analytics .an-reflist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 14px; }
+.analytics .an-reflist .mark { margin-right: 8px; }
+.analytics .an-insight { border-left: 3px solid var(--violet); gap: 14px; }
+.analytics .an-conf { display: grid; gap: 6px; padding: 10px 12px; background: var(--bg); border-radius: var(--r); }
+.analytics .an-meter { position: relative; height: 22px; background: var(--cell-neutral); border-radius: 999px; overflow: hidden; max-width: 360px; }
+.analytics .an-meter i { position: absolute; inset: 0 auto 0 0; background: var(--violet); }
+.analytics .an-meter b { position: absolute; right: 10px; top: 2px; font: 600 12.5px var(--mono); color: var(--ink); }
+.analytics .an-why ol { margin: 4px 0 8px; padding-left: 20px; display: grid; gap: 4px; font-size: 14px; line-height: 1.5; }
+.analytics .an-med { padding: 10px 12px; background: var(--bg); border-left: 3px solid var(--gold); display: grid; gap: 6px; }
+.analytics .an-med p { margin: 0; font-size: 14px; line-height: 1.55; }
+.analytics .an-sources { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; font-size: 13px; }
+.analytics .an-sources blockquote { margin: 4px 0 0; padding-left: 10px; border-left: 2px solid var(--line); color: var(--ink-2); }
+
+/* each graph on its own row: a large chart with Nemotron's explanation beside it */
+.analytics .an-graph { padding: 22px 24px; gap: 14px; }
+.analytics .an-graph h3 { font: 600 20px/1.3 var(--sans); }
+.analytics .an-graph > .an-note { font-size: 15px; max-width: 90ch; }
+.analytics .an-gbody { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.analytics .an-gchart .an-grid { grid-template-columns: 1fr; margin: 0; }
+.analytics .an-gchart .an-h4 { font-size: 15px; }
+.analytics .an-reflist { font-size: 16px; line-height: 1.5; gap: 12px; }
+@media (max-width: 960px) { .analytics .an-gbody { grid-template-columns: minmax(0, 1fr); } .analytics .an-graph { padding: 16px; } }
+.analytics .an-graphs, .analytics .an-graph, .analytics .an-gchart { min-width: 0; }
+.analytics .an-panel-body, .analytics .an-card, .analytics .an-askbox { grid-template-columns: minmax(0, 1fr); }   /* a wide table must scroll inside its card, never stretch the page */
