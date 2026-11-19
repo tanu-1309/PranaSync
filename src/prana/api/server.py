@@ -22,14 +22,21 @@ from pydantic import BaseModel
 from starlette.middleware.gzip import GZipMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+from prana.ai import ai_chat
 from prana.ai import chat as chatbot
 from prana.ai import llm
+from prana.ai.narrative import narrative_for
 from prana.api import auth
+from prana.api.analytics_routes import make_router as _analytics_router
 from prana.api.payload import build_payload
+from prana.api import account_routes
+from prana.data import docstore
+from prana.api.risk_routes import make_router as _risk_router
 from prana.config import RAW_DIR, RESULTS_DIR, ROOT, SYNTHETIC_DIR, setting
 from prana.data import db
 from prana.data.loader import list_workbooks
 from prana.insight.pipeline import analyze_workbook
+from prana.risk import service as risk_service
 
 WEB_DIR = ROOT / "web"
 
@@ -63,6 +70,8 @@ def _patient(pid: str) -> dict:
     stored = db.get_record(pid)
     if stored is not None:
         return stored
+    if db.is_registered(pid):      # a person who registered and uploads documents: no longitudinal workbook, a small package built from their uploads
+        return risk_service.registered_payload(pid)
     path = _index().get(pid)
     if path is None:
         raise HTTPException(404, "No record found for this account.")
@@ -86,7 +95,7 @@ def login(body: Login, request: Request):
     if wait:
         db.audit("login_locked", pid)
         raise HTTPException(429, f"Too many attempts. Please try again in {math.ceil(wait / 60)} minute(s).")
-    if not ok or (pid not in _index() and db.get_record(pid) is None):
+    if not ok or (pid not in _index() and db.get_record(pid) is None and not db.is_registered(pid)):
         db.audit("login_failed", pid)
         raise HTTPException(401, "That ID and password don’t match.")
     request.session.clear()
@@ -134,7 +143,8 @@ def guest(request: Request):
 def me(request: Request):
     """The signed-in patient's own record and analysis."""
     pid = _current(request)
-    return {**_patient(pid), "guest": bool(request.session.get("guest"))}
+    guest = bool(request.session.get("guest"))
+    return {**account_routes.apply_profile(pid, _patient(pid)), "guest": guest, "admin": (not guest) and docstore.is_admin(pid)}
 
 
 class PasswordChange(BaseModel):
@@ -175,7 +185,10 @@ class Chat(BaseModel):
 
 @app.post("/api/chat")
 def chat(body: Chat, request: Request):
-    """Answer a question about the signed-in patient's own record. The patient comes from the session, never from the request."""
+    """Answer a question about the signed-in patient's own record. The patient comes from the session, never from the request.
+
+    The safety gate is fixed code (emergency, medicine and diagnosis questions get the careful fixed reply). Every other answer is written by the AI model
+    from the patient's facts and checked before it is shown."""
     pid = _current(request)
     key = f"guest:{request.client.host if request.client else '?'}" if request.session.get("guest") else pid
     now, hits = time.monotonic(), _CHAT_HITS[key]
@@ -184,16 +197,37 @@ def chat(body: Chat, request: Request):
     if len(hits) >= CHAT_LIMIT:
         raise HTTPException(429, "That's a lot of questions at once. Please wait a moment.")
     hits.append(now)
-    state = body.state if isinstance(body.state, dict) and len(json.dumps(body.state, default=str)) < 2000 else {}
-    out = chatbot.answer(body.message[:500], _patient(pid), state)
-    if out["intent"] == "fallback" and llm.enabled():   # the model may only pick one of our fixed questions; the answer still comes from the record
-        routed = llm.route(body.message, chatbot.CANONICAL, chatbot.CANONICAL_HINTS)
-        if routed:
-            out = chatbot.answer(routed, _patient(pid), state)
-            out["answer"] = [f"_I read your question as: “{routed}”_"] + out["answer"]   # so a wrong guess is visible and the patient can rephrase
-    if not out["intent"].startswith("safety") and llm.enabled():
-        out["answer"] = llm.polish(out["answer"])   # reworded only if every number and safety check still holds
+    state = body.state if isinstance(body.state, dict) and len(json.dumps(body.state, default=str)) < 4000 else {}
+    payload = _patient(pid)
+    message = body.message[:500]
+    unsafe = chatbot.triage(chatbot._norm(message), payload) if message.strip() else None
+    if unsafe:
+        out = {"intent": "safety_" + unsafe, "answer": chatbot.SAFETY_REPLY[unsafe], "sources": [], "suggestions": [] if unsafe == "emergency" else ["Show me my statistical findings"], "state": state}
+    else:
+        out = ai_chat.answer(message, payload, state) if message.strip() else None
+        if out is None:
+            why = "The AI model is not switched on." if not llm.enabled() else "The AI model could not answer that just now (it may be busy or out of quota)."
+            out = {"intent": "ai_unavailable", "answer": [why + " The clinical view shows your results without it."], "sources": [{"label": "Clinical view", "link": "#/clinical"}],
+                   "suggestions": [], "state": state}
     db.audit("chat", pid, intent=out["intent"])  # the topic only, never the message
+    return out
+
+
+_NARRATIVE_HITS: dict[str, deque] = defaultdict(deque)
+
+
+@app.get("/api/narrative")
+def narrative(request: Request):
+    """The AI-written text for the signed-in patient (headline, overview, findings, suggestions and so on), generated once and then stored."""
+    pid = _current(request)
+    now, hits = time.monotonic(), _NARRATIVE_HITS[pid]
+    while hits and now - hits[0] > 60:
+        hits.popleft()
+    if len(hits) >= 6:
+        raise HTTPException(429, "Please wait a moment before asking again.")
+    hits.append(now)
+    out = narrative_for(pid, _patient(pid))
+    db.audit("narrative", pid, available=out["available"])
     return out
 
 
@@ -230,6 +264,11 @@ class _NoCacheStatic(StaticFiles):
         return resp
 
 
+_analytics = _analytics_router(_current, _patient)
+_risk = _risk_router(_current)
+app.include_router(_risk)   # register, upload documents, risk result
+app.include_router(account_routes.make_router(_current, _patient))   # profile, data export, model facts
+app.include_router(_analytics)   # the Analytics & Intelligence page (before the catch-all route below)
 app.mount("/assets", _NoCacheStatic(directory=WEB_DIR), name="assets")
 
 
