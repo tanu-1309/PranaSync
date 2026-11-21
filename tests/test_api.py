@@ -120,11 +120,12 @@ def test_outlook_in_the_package(client):
     assert o["recommendations"]["disclaimer"]
 
 
-def test_chat_needs_sign_in_and_answers_from_own_record(client):
+def test_chat_needs_sign_in_and_safety_is_fixed_code(client):
     assert client.post("/api/chat", json={"message": "hi"}).status_code == 401
     login(client)
-    r = client.post("/api/chat", json={"message": "give me a summary"}).json()
-    assert r["intent"] == "summary" and r["answer"] and "state" in r
+    assert client.post("/api/chat", json={"message": "I have chest pain"}).json()["intent"] == "safety_emergency"
+    r = client.post("/api/chat", json={"message": "give me a summary"}).json()      # the model is off in this test, so the AI answer is unavailable, with no template in its place
+    assert r["intent"] == "ai_unavailable" and r["sources"][0]["link"] == "#/clinical"
 
 
 def test_chat_is_rate_limited(client):

@@ -29,3 +29,15 @@ def workbooks(tmp_path_factory):
                 df.to_excel(xw, sheet_name=sn, index=False)
         paths[name] = p
     return paths
+
+
+@pytest.fixture(autouse=True)
+def _no_real_model_in_tests(monkeypatch):
+    """Tests never read the project's real .env or call a real model: a developer's key must not change a test result or be spent by one."""
+    from prana import config
+    monkeypatch.setattr(config, "_dotenv", lambda: {})
+    for name in ("PRANA_LLM", "PRANA_LLM_URL", "PRANA_LLM_MODEL", "PRANA_LLM_KEY", "PRANA_LLM_REASONING", "PRANA_LLM_REWORD", "PRANA_LLM_TIMEOUT", "PRANA_EXTRACT_AI", "PRANA_ADMIN_IDS", "ANTHROPIC_API_KEY", "GUEST_ID"):
+        monkeypatch.delenv(name, raising=False)
+    import os
+    for name in [n for n in os.environ if n.startswith(("PRANA_MEDGEMMA_", "PRANA_RERANK_"))]:   # the same guard for the MedGemma and rerank settings
+        monkeypatch.delenv(name, raising=False)
