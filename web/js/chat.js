@@ -1,6 +1,7 @@
 // "Prana": the assistant. A friendly panel that answers questions about the signed-in patient's own record.
 // The server decides who the patient is; answers are built from that record only.
 import { h, clear, md, api } from "./ui.js";
+import { highlight } from "./highlight.js";
 
 const STARTERS = [
   ["How am I doing?", "Give me a summary"],
@@ -38,21 +39,26 @@ export function mountChat(host) {
     clear(sugg);
     list.forEach((t) => { const [label, q] = Array.isArray(t) ? t : [t, t]; sugg.append(h("button", { type: "button", onclick: () => ask(q, label) }, label)); });
   }
+  // Values, measures and clear phrases in an answer get the same highlights as the Home page. Text inside bold or italics is left as the writer marked it.
+  function marked(el) {
+    el.querySelectorAll("p, li").forEach((node) => { [...node.childNodes].filter((n) => n.nodeType === 3 && n.data.trim()).forEach((t) => t.replaceWith(...highlight(t.data))); });
+    return el;
+  }
   function bubble(who, nodes) { const b = h("div", { class: `msg ${who}` }, nodes); log.append(b); log.scrollTop = log.scrollHeight; return b; }
   function links(sources) {
     return sources && sources.length ? h("p", { class: "msg-src" }, "See: ", sources.map((x, i) => [i ? " · " : "", h("a", { href: x.link }, x.label)])) : null;
   }
   function render(r) {
-    bubble("bot", [r.answer.flatMap((t) => md(t)), links(r.sources)]);
-    chips(r.suggestions);
+    bubble("bot", [r.answer.flatMap((t) => md(t)).map(marked), r.ai ? h("p", { class: "msg-ai" }, "✦ Written by AI from your record") : null, links(r.sources)]);
+    chips(r.suggestions && r.suggestions.length ? r.suggestions : STARTERS);
   }
   async function ask(text, label) {
     text = text.trim();
     if (busy || !text) return;
     bubble("me", label || text);
     input.value = ""; busy = true; send.disabled = true; clear(sugg);
-    const typing = bubble("bot typing", [h("i"), h("i"), h("i")]);
-    try { await new Promise((r) => setTimeout(r, 450)); const r = await api("chat", { method: "POST", body: { message: text, state } }); state = r.state; typing.remove(); render(r); }
+    const typing = bubble("bot typing", [h("i"), h("i"), h("i"), h("span", { class: "thinking" }, "Prana is thinking…")]);
+    try { const r = await api("chat", { method: "POST", body: { message: text, state } }); state = r.state; typing.remove(); render(r); }
     catch (e) { typing.remove(); bubble("bot", e.status === 401 ? "You were signed out. Please sign in again." : (e.message || "Sorry, I couldn’t answer that.")); }
     busy = false; send.disabled = false; input.focus();
   }
