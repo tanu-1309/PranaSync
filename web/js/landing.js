@@ -18,7 +18,7 @@ function spark(points, cls = "") {
 function heroCards() {
   const wrap = h("div", { class: "lp-visual", "aria-hidden": "true" },
     h("div", { class: "lp-blob b1" }), h("div", { class: "lp-blob b2" }),
-    h("div", { class: "fl c1", "data-depth": "18" }, h("span", { class: "k" }, "Heart attack or stroke, 10 years"), h("b", null, "2 in 100"), h("span", { class: "chip ok" }, "low band")),
+    h("div", { class: "fl c1", "data-depth": "18" }, h("span", { class: "k" }, "Heart and circulation"), h("b", null, "Lower"), h("span", { class: "chip ok" }, "evidence 82 / 100")),
     h("div", { class: "fl c2", "data-depth": "30" }, h("span", { class: "k" }, "Blood pressure"), spark([138, 137, 139, 138, 140, 139, 141, 141]), h("span", { class: "chip warn" }, "↗ rising steadily")),
     h("div", { class: "fl c3", "data-depth": "12" }, s("svg", { viewBox: "0 0 70 70", class: "mini" }, s("circle", { cx: 35, cy: 35, r: 28, class: "t" }), s("circle", { cx: 35, cy: 35, r: 28, class: "a", "stroke-dasharray": "176", "stroke-dashoffset": "70", transform: "rotate(-90 35 35)" })),
       h("div", null, h("b", null, "17 of 28"), h("span", { class: "k" }, "in their usual range"))),
@@ -42,7 +42,7 @@ function heroVisual() {
 const CHAPTERS = [
   ["01", "See what changed", "Every measurement is compared with your own first two months, not with other people. When several related signals start moving together and stay moved, we say so, in plain words."],
   ["02", "Know where you stand", "A second check asks whether each level sits within a usual range from published guidelines. You see a calm card for each measure, not a wall of numbers."],
-  ["03", "Ask and prepare", "Ask Prana about your own record. Get your 10-year heart and diabetes estimates with the reasons behind them, and a short list of questions for your next visit."],
+  ["03", "Ask and prepare", "Ask Prana about your own record. Get a class for your heart, blood sugar and blood pressure with the reasons behind each, and a short list of questions for your next visit."],
 ];
 
 function visual(i) {
@@ -56,8 +56,8 @@ function visual(i) {
     return h("div", { class: "vis v1" }, h("p", { class: "k" }, "Where you sit against usual ranges (sample)"),
       bars.map(([n, w, t, c]) => h("div", { class: "lvl" }, h("b", null, n), h("div", { class: "track" }, h("i", { class: t, style: { width: `${w}%` } })), h("span", { class: `chip ${t}` }, c))));
   }
-  return h("div", { class: "vis v2" }, h("p", { class: "k" }, "Your 10-year estimates (sample)"),
-    h("div", { class: "two" }, h("div", null, h("span", { class: "k" }, "Heart attack or stroke"), h("b", null, "2 in 100"), h("span", { class: "chip ok" }, "low")), h("div", null, h("span", { class: "k" }, "Type 2 diabetes"), h("b", null, "15–20 pts"), h("span", { class: "chip warn" }, "high band"))),
+  return h("div", { class: "vis v2" }, h("p", { class: "k" }, "Your three health areas (sample)"),
+    h("div", { class: "two" }, h("div", null, h("span", { class: "k" }, "Heart and circulation"), h("b", null, "Lower"), h("span", { class: "chip ok" }, "evidence 82")), h("div", null, h("span", { class: "k" }, "Blood sugar"), h("b", null, "Moderate"), h("span", { class: "chip warn" }, "evidence 56"))),
     h("p", { class: "why" }, "Mostly from cholesterol and blood pressure. Each factor’s share is shown, and what the estimate does not include."));
 }
 
@@ -79,7 +79,7 @@ function story() {
 
 // ---------------------------------------------------------------- Meet Prana (canned examples, labelled as such)
 const QA = [
-  ["What is my chance of a heart attack?", "About 2 in 100 over the next 10 years, which is the low band. It comes mostly from total cholesterol and blood pressure. I can show each factor’s share and what the estimate leaves out."],
+  ["What is my chance of a heart attack?", "Your heart and circulation class is lower. It rests mostly on your blood pressure and cholesterol, and I can show which values are still missing. I don’t give a percentage: there isn’t enough backing to prove one."],
   ["Did anything change for me?", "Three related measures began moving together in February: HbA1c, fasting glucose and triglycerides. This links to a note already in your history. I can show you which ones, and what to ask your doctor."],
   ["Should I stop my medicine?", "I can’t advise on medicines or doses. Please ask your pharmacist or the clinician who prescribed it. I can show what is on your record and how consistently doses were taken."],
 ];
@@ -103,7 +103,7 @@ function meet() {
 
 // ---------------------------------------------------------------- numbers, privacy, FAQ
 function numbers() {
-  const items = [[28, "measures compared with published guidelines"], [2, "10-year risk scores: heart and diabetes"], [0, "diagnoses made, ever"], [900, "practice records used to build and test it"]];
+  const items = [[28, "measures compared with published guidelines"], [3, "risk areas, each with its reasons and evidence strength"], [0, "diagnoses made, ever"], [900, "practice records used to build and test it"]];
   const el = h("section", { class: "lp-nums" }, items.map(([n, l]) => h("div", null, h("b", { "data-n": n }, "0"), h("span", null, l))));
   new IntersectionObserver((es, o) => es.forEach((e) => {
     if (!e.isIntersecting) return;
@@ -121,7 +121,7 @@ const TRUST = [["shield", "Only you see your record", "Each person has their own
   ["info", "Describes, never diagnoses", "We show what changed in your own data and give you questions for your care team. A clinician makes the decisions."],
   ["question", "Says what it can’t do", "Prana will not advise on medicines, assess emergencies, or estimate conditions it has no validated score for."]];
 const FAQ = [["Is this a medical device or a diagnosis?", "No. PranaSync is a prototype that describes patterns in your own data. It is not medical advice and does not diagnose."],
-  ["Where does the heart-risk number come from?", "From the published ACC/AHA Pooled Cohort Equations. The diabetes score is the Finnish Diabetes Risk Score. Smoking and waist size are not in the records, so the answers say what is assumed."],
+  ["Where do the risk classes come from?", "From a small explainable model trained on practice records. It shows which of your values push each class up or down and which are missing. It gives no percentage, and it has not been checked by a clinician."],
   ["Can I use it without an account?", "Yes. “Try the sample record” opens a read-only example so you can look around. Nothing you do there changes anything."],
   ["Who built this?", "Team 8 for the PranaChain × University of Windsor “Beyond the Record” challenge (COMP 8967). It is a student prototype, tested on practice data, not yet clinically validated."]];
 
@@ -135,18 +135,18 @@ function faq() {
 }
 
 // ---------------------------------------------------------------- page
-export function landingView(root, { onSignIn, onGuest }) {
+export function landingView(root, { onSignIn, onGuest, onRegister }) {
   const nav = h("header", { class: "lp-nav" }, h("a", { class: "wm", href: "#", onclick: (e) => { e.preventDefault(); scrollTo({ top: 0, behavior: "smooth" }); } }, logo(34), h("b", null, "PranaSync")),
     h("nav", { "aria-label": "Page sections" }, [["how", "How it works"], ["prana", "Meet Prana"], ["privacy", "Privacy"], ["faq", "FAQ"]].map(([id, l]) =>
       h("a", { href: `#${id}`, onclick: (e) => { e.preventDefault(); document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); } }, l))),
-    h("div", { class: "r" }, h("button", { class: "lp-btn ghost", type: "button", onclick: onSignIn }, "Sign in"), h("button", { class: "lp-btn solid", type: "button", onclick: onGuest }, "Try the sample")));
+    h("div", { class: "r" }, h("button", { class: "lp-btn ghost", type: "button", onclick: onSignIn }, "Sign in"), h("button", { class: "lp-btn solid", type: "button", onclick: onRegister }, "Create account")));
   addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), { passive: true });
 
   const hero = h("section", { class: "lp-hero" },
     h("div", { class: "copy" }, h("span", { class: "eyebrow" }, "Patient health record"),
       h("h1", null, "Your health record, ", h("em", null, "made clear.")),
       h("p", { class: "lede" }, "A year of your readings, compared with your own usual, explained in plain words. See what changed, where you stand, and what to ask your doctor. Never a diagnosis."),
-      h("div", { class: "lp-row" }, h("button", { class: "lp-btn solid lg", type: "button", onclick: onGuest }, "Try the sample record"), h("button", { class: "lp-btn ghost lg", type: "button", onclick: onSignIn }, "Sign in")),
+      h("div", { class: "lp-row" }, h("button", { class: "lp-btn solid lg", type: "button", onclick: onGuest }, "Try the sample record"), h("button", { class: "lp-btn ghost lg", type: "button", onclick: onRegister }, "Create an account"), h("button", { class: "lp-btn ghost lg", type: "button", onclick: onSignIn }, "Sign in")),
       h("p", { class: "tiny" }, icon("shield", 15), "Your record opens only with your own ID and password.")),
     heroVisual());
 

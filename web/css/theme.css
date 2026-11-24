@@ -186,3 +186,20 @@ details.fold > summary .hint { font-size: 0; } details.fold > summary .hint::aft
 .dir .arr { display: inline-block; font-style: normal; animation: nudge 1.8s ease-in-out infinite; } .dir-steady .arr { animation: none; }
 @keyframes nudge { 50% { transform: translate(2px, -2px); } } .dir-falling .arr { animation-name: nudgeDown; } @keyframes nudgeDown { 50% { transform: translate(2px, 2px); } }
 .watch:hover { transform: translateY(-4px); box-shadow: 0 22px 44px rgba(109, 47, 166, .16); }
+.msg-ai { margin-top: 8px; font: 500 11.5px var(--sans); color: var(--violet); }
+.msg-ai.wait { color: var(--ink-3); animation: nudge 1.4s ease-in-out infinite; }
+
+/* ---------------------------------------------------------------- AI-written content */
+.ainote { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin: 0 0 22px; padding: 14px 18px; border-radius: 16px; background: var(--lav); color: var(--ink); font-size: 14.5px; }
+.ainote.bad { background: var(--gold-bg); color: var(--ink); } .ainote.bad button { margin-left: auto; padding: 7px 16px; border-radius: 99px; background: #6d2fa6; color: #fff; font: 600 13px var(--sans); }
+.spin { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(109, 47, 166, .25); border-top-color: #6d2fa6; animation: spin .9s linear infinite; flex: none; } @keyframes spin { to { transform: rotate(360deg); } }
+.aibadge { display: inline-flex; align-items: center; padding: 3px 11px; border-radius: 99px; background: var(--lav); color: var(--violet); font: 600 12px var(--sans); cursor: help; }
+.aisec { margin: 36px 0; } .aihead { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 12px; } .aihead h2 { margin: 0; font: 700 clamp(22px, 2.4vw, 30px)/1.2 var(--sans); letter-spacing: -.03em; }
+.aifind { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 14px 0; }
+.aif { padding: 20px 22px; border-radius: 20px; } .aif h3 { margin: 6px 0 8px; font: 650 19px/1.3 var(--sans); } .aif p { color: var(--ink-2); line-height: 1.6; }
+.statscard { display: flex; flex-direction: column; gap: 6px; margin: 30px 0; padding: 22px 24px; border-radius: 22px; border: 1.5px dashed var(--line-2); text-decoration: none; color: var(--ink); transition: background .2s, border-color .2s, transform .2s; }
+.statscard:hover { background: var(--surface-2); border-color: var(--violet); transform: translateY(-3px); } .statscard b { font: 700 22px var(--sans); letter-spacing: -.02em; } .statscard span { color: var(--ink-2); font-size: 14.5px; max-width: 70ch; }
+.shimmer-block { display: grid; gap: 8px; margin: 8px 0; } .shimmer-block i { display: block; height: 14px; border-radius: 8px; background: linear-gradient(100deg, var(--surface-2) 30%, var(--lav) 50%, var(--surface-2) 70%); background-size: 300% 100%; animation: shimmer 1.4s infinite linear; }
+.gl.skel { cursor: default; } .gl.skel:hover { transform: none; box-shadow: var(--shadow); }
+.msg.typing .thinking { margin-left: 8px; font-size: 12.5px; color: var(--ink-3); }
+.wp.doing { border-style: dashed; border-color: var(--violet); color: var(--violet); } .wp.doing b { color: var(--violet); }

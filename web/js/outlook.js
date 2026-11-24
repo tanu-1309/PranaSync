@@ -2,60 +2,13 @@
 // Everything else (inputs, method, caveats) sits behind a click, so the page stays calm.
 import { h, s, fmt, fmtDate, parseDate, pct, tip, DAY } from "./ui.js";
 import { pagehead } from "./record.js";
+import { aiReady, aiNotice, aiBadge, shimmer } from "./ai.js";
+import { outlookRisk } from "./risk.js";
 
-const TONE = { low: "teal", borderline: "gold", intermediate: "ember", high: "ember", "slightly raised": "gold", moderate: "gold", "very high": "ember" };
 const FLAG_TONE = { within: "teal", watch: "gold", outside: "ember" };
 const ARROW = { rising: "↗", falling: "↘", steady: "→" };
 const GROUP_TONE = { raise: "ember", watch: "gold", data: "teal", habits: "slate" };
 const ask = (q) => document.dispatchEvent(new CustomEvent("prana:ask", { detail: q }));
-
-// ---------------------------------------------------------------- risks
-function drivers(list, unit, max) {
-  const top = Math.max(0.1, ...list.map((d) => d.points));
-  return h("div", { class: "drv" }, list.slice(0, max).map((d) => h("div", { class: "dr" },
-    h("div", { class: "dl" }, h("b", null, d.label), h("span", null, d.text)),
-    h("div", { class: "bar" }, h("i", { style: { width: `${Math.max(8, d.points / top * 100)}%` } })), h("span", { class: "pt" }, `+${d.points} ${unit}`))));
-}
-
-function heartCard(p) {
-  const r = p.outlook.risk;
-  if (!r) return null;
-  if (!r.available) {
-    return h("article", { class: "risk card" }, h("span", { class: "gk" }, "Heart attack or stroke, next 10 years"), h("b", { class: "rbig muted" }, "Not scored"), h("p", { class: "rline" }, r.reason),
-      h("p", { class: "fine" }, "We only show a number where the published formula applies."));
-  }
-  const ups = r.drivers.filter((d) => !d.fixed);
-  return h("article", { class: `risk card tone-${TONE[r.band]}` },
-    h("span", { class: "gk" }, "Heart attack or stroke, next 10 years"),
-    h("b", { class: "rbig" }, `${r.per100} in 100`), h("span", { class: `mark tone-${TONE[r.band]}` }, `${r.band} band`),
-    h("p", { class: "rline" }, ups.length ? `Mostly from ${ups.slice(0, 2).map((d) => d.label.toLowerCase()).join(" and ")}.` : "None of the changeable factors is above its healthy level."),
-    h("details", { class: "why" }, h("summary", null, "Why this number"),
-      ups.length ? drivers(ups, "pts", 4) : null,
-      h("p", { class: "fine" }, "Each bar is how many percentage points the estimate would drop if that one factor were healthy. Age and sex cannot be changed."),
-      h("table", { class: "inputs" }, h("tbody", null, r.inputs.map((i) => h("tr", null, h("td", null, i.label), h("td", null, i.value), h("td", { class: "faint" }, i.source))))),
-      h("ul", { class: "bullets" }, r.assumptions.map((a) => h("li", null, a))),
-      h("p", { class: "fine" }, `${r.bands} ${r.method}. ${r.caveat}`)),
-    h("button", { class: "ask-inline", type: "button", onclick: () => ask("What is my chance of a heart attack?") }, "Ask Prana about this →"));
-}
-
-function diabetesCard(p) {
-  const r = p.outlook.diabetes;
-  if (!r) return null;
-  if (!r.available) {
-    return h("article", { class: "risk card" }, h("span", { class: "gk" }, "Type 2 diabetes, next 10 years"), h("b", { class: "rbig muted" }, "Not scored"), h("p", { class: "rline" }, r.reason));
-  }
-  const range = r.per100_min === r.per100_max ? `${r.per100_min} in 100` : `${r.per100_min}–${r.per100_max} in 100`;
-  const band = r.band_min === r.band_max ? r.band_min : `${r.band_min} to ${r.band_max}`;
-  return h("article", { class: `risk card tone-${TONE[r.band_max]}` },
-    h("span", { class: "gk" }, "Type 2 diabetes, next 10 years"),
-    h("b", { class: "rbig" }, range), h("span", { class: `mark tone-${TONE[r.band_max]}` }, `${band} band`),
-    h("p", { class: "rline" }, `Mostly from ${r.drivers.slice(0, 2).map((d) => d.label.toLowerCase()).join(" and ")}.`),
-    h("details", { class: "why" }, h("summary", null, "Why this number"),
-      drivers(r.drivers, "pts", 5),
-      h("p", { class: "fine" }, `Screening score ${r.score_min}${r.score_min === r.score_max ? "" : `–${r.score_max}`}. ${r.assumptions.join(" ")}`),
-      h("p", { class: "fine" }, `${r.bands} ${r.method}. ${r.caveat}`)),
-    h("button", { class: "ask-inline", type: "button", onclick: () => ask("What is my chance of developing diabetes?") }, "Ask Prana about this →"));
-}
 
 // ---------------------------------------------------------------- watch list: a trend line for each measure outside its usual range
 function trendChart(w) {
@@ -87,15 +40,13 @@ function trendChart(w) {
   return el;
 }
 
-function watchCard(w) {
+function watchCard(w, p) {
   return h("article", { class: "card watch" },
     h("div", { class: "wh" }, h("b", null, w.label), h("span", { class: `mark tone-${FLAG_TONE[w.flag]}` }, w.category)),
     h("p", { class: "wv" }, /^\d+(\.\d+)?$/.test(w.value_text) ? h("span", { "data-count": w.value_text, "data-nd": (w.value_text.split(".")[1] || "").length }, w.value_text) : h("span", null, w.value_text), h("small", null, ` ${w.unit}`), h("span", { class: `dir dir-${w.direction}` }, h("i", { class: "arr" }, ARROW[w.direction]), ` ${w.direction}`)),
     trendChart(w),
     h("p", { class: "fine" }, `${w.change}. ${w.reference_text}.`),
-    w.projection ? h("p", { class: "wproj" }, `In about 3 months it may be around ${fmt(w.projection.value)} (likely ${fmt(w.projection.low)} to ${fmt(w.projection.high)}).`)
-      : h("p", { class: "fine" }, w.note),
-    w.drivers ? h("details", { class: "why" }, h("summary", null, "What drove this?"), h("ul", { class: "bullets" }, w.drivers.map((d) => h("li", null, d)))) : null);
+    aiReady(p) ? h("p", { class: "wproj" }, p.ai.watch?.[w.label] || "") : shimmer(2));
 }
 
 function watchSection(p) {
@@ -104,33 +55,30 @@ function watchSection(p) {
   return h("section", { class: "outlook-sec" },
     h("h2", null, "Things to keep an eye on"),
     h("p", { class: "standfirst" }, W.items.length ? "Each measure that sits outside its usual range, and how it has been moving." : "Everything we track sits within its usual range."),
-    h("div", { class: "fcgrid" }, W.items.map(watchCard)),
+    h("div", { class: "fcgrid" }, W.items.map((w) => watchCard(w, p))),
     W.more.length ? h("p", { class: "fine" }, `Also outside their usual range: ${W.more.join(", ")}. Ask Prana about any of them.`) : null,
     h("details", { class: "why" }, h("summary", null, "How reliable is this?"), h("p", { class: "fine" }, trust || "Projections appear only when a trend is strong and lasting.")));
 }
 
 // ---------------------------------------------------------------- suggestions
 function recSection(p) {
-  const r = p.outlook.recommendations;
+  if (!aiReady(p)) return h("section", { class: "outlook-sec" }, h("h2", null, "What to do with this"), shimmer(3));
+  const list = p.ai.suggestions || [];
+  const groups = ["raise", "watch", "data", "habits"].map((g) => [g, list.filter((x) => x.group === g)]).filter(([, l]) => l.length);
   return h("section", { class: "outlook-sec" },
-    h("h2", null, "What to do with this"),
-    h("p", { class: "standfirst" }, r.summary),
-    r.groups.map((g) => h("div", { class: "recgroup" },
-      h("h3", { class: `mark tone-${GROUP_TONE[g.id]}` }, g.title),
-      g.items.map((i) => h("details", { class: "rec" },
-        h("summary", null, i.title),
-        h("p", null, i.why.join(" ")),
-        i.ask ? h("p", { class: "ask" }, i.ask) : null,
-        h("p", { class: "src" }, i.source ? `Source: ${i.source}. ` : "", h("a", { href: i.link }, "See it in your record")))))),
-    h("p", { class: "fine" }, r.disclaimer));
+    h("div", { class: "aihead" }, h("h2", null, "What to do with this"), aiBadge(p)),
+    p.ai.outlook ? h("p", { class: "standfirst" }, p.ai.outlook) : null,
+    groups.map(([g, l]) => h("div", { class: "recgroup" },
+      h("h3", { class: `mark tone-${GROUP_TONE[g]}` }, { raise: "Worth raising with your care team", watch: "Worth keeping an eye on", data: "Information that would help", habits: "General guidance, if it fits you" }[g]),
+      l.map((i) => h("details", { class: "rec" }, h("summary", null, i.title), h("p", null, i.why), i.ask ? h("p", { class: "ask" }, i.ask) : null)))),
+    (p.ai.questions_for_doctor || []).length ? h("div", { class: "recgroup" }, h("h3", { class: "mark tone-slate" }, "Questions for your next visit"), h("ul", { class: "bullets" }, p.ai.questions_for_doctor.map((q) => h("li", null, q)))) : null,
+    h("p", { class: "fine" }, "Written by an AI model from your record. These are suggestions for a conversation with your care team, not medical advice, and they never mean changing how you take a medicine."));
 }
 
 export function outlookView(p) {
   return h("div", { class: "page" },
     pagehead("Outlook", "A simple look ahead from your own record. Not a diagnosis."),
-    h("section", { class: "outlook-sec" }, h("h2", null, "Your health risks"),
-      h("p", { class: "standfirst" }, "Estimates from published scores, for groups of people with your readings."),
-      h("div", { class: "riskgrid" }, heartCard(p), diabetesCard(p)),
-      h("p", { class: "fine" }, "We can’t estimate other conditions. Prana can show where blood pressure, cholesterol, kidney function and weight are heading.")),
+    aiNotice(p, () => document.dispatchEvent(new CustomEvent("prana:retry-ai"))),
+    outlookRisk(),
     watchSection(p), recSection(p));
 }
