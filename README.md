@@ -1,8 +1,8 @@
-# Prana Chain · AI Health Intelligence — Team 8 (checkpoint, week 6)
+# Prana Chain · AI Health Intelligence — Team 8 (week 8)
 
 COMP 8967 · Business 2: Prana Chain · Team 8: Uday Kumar Reddy Yarradoddi (lead) · Sneha Gunturu · Sindhu Padmaja Dudekula · Gavinnolla Tanusree Reddy
 
-**Status: 4 of 10 work packages done (≈ 40 % of the project).** This repository holds the working core: one patient's
+**Status (week 8): 7 of 10 work packages done (≈ 70 %).** This repository holds the working core: one patient's
 12-month workbook → cleaned single timeline → each signal compared with the person's own baseline → a pattern only when
 several related signals change together → linked to the history → evidence, plain-language explanation and missing-data
 requests on a dashboard. It never diagnoses. The remaining work is planned in [`docs/PLAN_AND_DISCUSSION.md`](docs/PLAN_AND_DISCUSSION.md).
@@ -74,3 +74,10 @@ fairness and sensitivity analysis · handoff documentation.
 
 ## Privacy
 Patient workbooks (`data/raw/`), generated data, the database and `.env` are git-ignored and must never be committed.
+
+## Two AI models, an analytics page and a medical knowledge base
+The portal has a new page, **More → Analytics & Intelligence**, and can use Google MedGemma next to NVIDIA Nemotron. MedGemma is off until you connect an endpoint.
+- Models and how to connect one: [`docs/MEDGEMMA.md`](docs/MEDGEMMA.md)
+- The page and its API: [`docs/ANALYTICS_PAGE.md`](docs/ANALYTICS_PAGE.md)
+- Approved documents the AI may cite: [`docs/KNOWLEDGE_BASE.md`](docs/KNOWLEDGE_BASE.md)
+- What was built, tested and what is left: [`docs/MEDGEMMA_DELIVERY_REPORT.md`](docs/MEDGEMMA_DELIVERY_REPORT.md)

@@ -1,0 +1,324 @@
+# Written by scripts/fetch_who_factsheets.py and scripts/fetch_medical_sources.py. Clinician review of these sources is still to do.
+sources:
+- source_id: who-hypertension
+  file: who-hypertension.md
+  title: Hypertension (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/hypertension
+  published: '2025-09-25'
+  version: fact sheet dated 2025-09-25
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-diabetes
+  file: who-diabetes.md
+  title: Diabetes (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/diabetes
+  published: '2026-11-11'
+  version: fact sheet dated 2026-11-11
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-cardiovascular
+  file: who-cardiovascular.md
+  title: Cardiovascular diseases (CVDs) (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/cardiovascular-diseases-(cvds)
+  published: '2025-07-31'
+  version: fact sheet dated 2025-07-31
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-obesity
+  file: who-obesity.md
+  title: Obesity and overweight (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
+  published: '2026-10-07'
+  version: fact sheet dated 2026-10-07
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-physical-activity
+  file: who-physical-activity.md
+  title: Physical activity (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/physical-activity
+  published: '2026-11-04'
+  version: fact sheet dated 2026-11-04
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-healthy-diet
+  file: who-healthy-diet.md
+  title: Healthy diet (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/healthy-diet
+  published: '2026-01-26'
+  version: fact sheet dated 2026-01-26
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-tobacco
+  file: who-tobacco.md
+  title: Tobacco and nicotine (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/tobacco
+  published: '2026-06-26'
+  version: fact sheet dated 2026-06-26
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-alcohol
+  file: who-alcohol.md
+  title: Alcohol (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/alcohol
+  published: '2024-06-28'
+  version: fact sheet dated 2024-06-28
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-salt-reduction
+  file: who-salt-reduction.md
+  title: Sodium reduction (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/salt-reduction
+  published: '2026-05-11'
+  version: fact sheet dated 2026-05-11
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-pcos
+  file: who-pcos.md
+  title: Polycystic ovary syndrome (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/polycystic-ovary-syndrome
+  published: '2026-01-22'
+  version: fact sheet dated 2026-01-22
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: who-ncd
+  file: who-ncd.md
+  title: Noncommunicable diseases (WHO fact sheet)
+  publisher: World Health Organization
+  source_type: government
+  url: https://www.who.int/news-room/fact-sheets/detail/noncommunicable-diseases
+  published: '2025-09-25'
+  version: fact sheet dated 2025-09-25
+  license: WHO publications are CC BY-NC-SA 3.0 IGO under WHO's copyright policy (https://www.who.int/about/policies/publishing/copyright).
+    This web fact sheet does not state its own licence, so it is used for non-commercial
+    project purposes only until WHO confirms, with attribution to the World Health
+    Organization.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-cholesterol
+  file: medlineplus-cholesterol.md
+  title: Cholesterol (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/cholesterol.html
+  published: '2025-03-18'
+  version: page dated 2025-03-18
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-cholesterol-levels
+  file: medlineplus-cholesterol-levels.md
+  title: Cholesterol Levels (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/cholesterol-levels/
+  published: '2024-10-15'
+  version: page dated 2024-10-15
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-triglycerides
+  file: medlineplus-triglycerides.md
+  title: Triglycerides Test (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/triglycerides-test/
+  published: '2024-12-09'
+  version: page dated 2024-12-09
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-hba1c
+  file: medlineplus-hba1c.md
+  title: Hemoglobin A1C (HbA1c) Test (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/hemoglobin-a1c-hba1c-test/
+  published: '2025-05-20'
+  version: page dated 2025-05-20
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-blood-glucose
+  file: medlineplus-blood-glucose.md
+  title: Blood Glucose Test (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/blood-glucose-test/
+  published: '2024-12-30'
+  version: page dated 2024-12-30
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-high-blood-pressure
+  file: medlineplus-high-blood-pressure.md
+  title: High Blood Pressure (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/highbloodpressure.html
+  published: '2026-01-22'
+  version: page dated 2026-01-22
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-type2-diabetes
+  file: medlineplus-type2-diabetes.md
+  title: Diabetes Type 2 (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/diabetestype2.html
+  published: '2026-01-21'
+  version: page dated 2026-01-21
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-prediabetes
+  file: medlineplus-prediabetes.md
+  title: Prediabetes (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/prediabetes.html
+  published: '2025-09-28'
+  version: page dated 2025-09-28
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-pcos
+  file: medlineplus-pcos.md
+  title: Polycystic Ovary Syndrome (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/polycysticovarysyndrome.html
+  published: '2026-09-22'
+  version: page dated 2026-09-22
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-thyroid-tests
+  file: medlineplus-thyroid-tests.md
+  title: TSH (Thyroid-stimulating hormone) Test (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/tsh-thyroid-stimulating-hormone-test/
+  published: '2024-10-30'
+  version: page dated 2024-10-30
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-vitamin-d
+  file: medlineplus-vitamin-d.md
+  title: Vitamin D Test (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/vitamin-d-test/
+  published: '2024-12-04'
+  version: page dated 2024-12-04
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
+- source_id: medlineplus-kidney-tests
+  file: medlineplus-kidney-tests.md
+  title: Estimated Glomerular Filtration Rate (eGFR) and GFR Tests (MedlinePlus)
+  publisher: MedlinePlus (US National Library of Medicine)
+  source_type: government
+  url: https://medlineplus.gov/lab-tests/glomerular-filtration-rate-gfr-test/
+  published: '2026-09-30'
+  version: page dated 2026-09-30
+  license: US government work. MedlinePlus states its information is free of copyright
+    restrictions unless a page says otherwise; NIH and CDC pages are US government
+    works. Used for non-commercial project purposes with attribution to the publisher.
+    Check the page's own notice before reuse.
+  retrieved_on: '2026-11-24'
+  approved_by: Gavinnolla Tanusree Reddy (project owner)
