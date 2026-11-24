@@ -1,0 +1,17 @@
+# EXAMPLE ONLY. Copy to data/knowledge/manifest.yaml and fill in real details. There is no real document behind these entries.
+# For each document:
+#   1. Check its licence and that your use is allowed (some publishers need written permission). Write what you found in `license`.
+#   2. Save the text yourself as a .md or .txt file next to the manifest (headings with #, paragraphs separated by blank lines).
+#   3. A named person approves it in `approved_by`. Ingestion refuses an entry with no approver.
+sources:
+  - source_id: example-guideline-2024          # 3-64 chars: lowercase letters, digits, - or _
+    file: example-guideline-2024.md            # a local file, relative to this manifest
+    title: "Exact title of the document"
+    publisher: "Publisher name"
+    source_type: guideline                     # guideline | government | terminology
+    url: "https://www.example.who.int/exact/page"   # https, on an allowed host
+    published: "2024-05"                       # YYYY, YYYY-MM or YYYY-MM-DD
+    version: "2024 edition"                    # required for terminology
+    license: "What the licence says and where (page address)"
+    retrieved_on: "2026-11-15"                 # the day you saved the file
+    approved_by: "Name of the approving person"

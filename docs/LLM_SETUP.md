@@ -80,6 +80,42 @@ If the provider is slow, down, or the key is wrong, Prana silently falls back to
 ## How well does it work? (measured on this computer)
 With Ollama `llama3.2` (a 3-billion-parameter model) on an ordinary CPU, I tried 13 paraphrased questions I wrote (for example "whats going on with my bp", "which tablets am I on", "whats the weather like"). The plain prompt matched 8 of 13. The final prompt, with topic hints and examples, matched 11 of 13. It wrongly matched "should I be worried about my cholesterol" to the blood-pressure question and "tell me about my risks" to the what-changed question. This is a small test by the author, not a benchmark: expect mistakes, which is why Prana shows "I read your question as: ..." above the answer, and why every answer still comes from the record. The first request after starting Ollama takes about 8 seconds while the model loads, then about 2 seconds. A bigger or hosted model matches better. Set `PRANA_LLM_TIMEOUT=60` if your computer is slow.
 
+## AI wording (dynamic, natural answers)
+
+Prana's rules decide the facts; the model can then say them in a natural, varied tone, so answers do not sound like templates. Turn it on with `PRANA_LLM_REWORD=1`. A small label, "Wording by AI. Numbers come from your record.", appears under any answer the model reworded.
+
+**What is checked before a reworded answer is shown** (otherwise the original rule-built answer is used):
+- every number, unit and date is the same, and none is added
+- every bullet is still a bullet
+- no meaning-changing word is added that the original did not use (for example "within", "normal", "nothing to worry"): this catches a rewording that keeps the numbers but flips the meaning
+- no diagnosis or medicine instruction, no chatter such as "Here is a rewritten version", and the length is close to the original
+- emergency, medicine and diagnosis replies, greetings and "I'm not sure" replies are never reworded
+
+**Which model to use.** Wording needs a capable model. On this project's own test, the small local `llama3.2` model passed the checks on 0 of 7 answers, took 9 to 30 seconds each, and in one case wrote "within the lab's range" for a value that was above it. The checks caught it, which is why they exist, but it means a small local model cannot do this job. Use a stronger hosted model:
+
+| Choice | Setting | Notes |
+|---|---|---|
+| **Claude Sonnet 5.5** (recommended) | `PRANA_LLM_MODEL=claude-sonnet-5-5` | Good quality and speed. This is the default when you use an Anthropic key. |
+| **Claude Fable 5.1** (most capable) | `PRANA_LLM_MODEL=claude-fable-5-1` | Best wording, slower and costs more. |
+| **Claude Haiku 5.5** (fastest) | `PRANA_LLM_MODEL=claude-haiku-5-5` | Cheapest, simplest wording. |
+
+Settings for Anthropic:
+```
+PRANA_LLM=1
+ANTHROPIC_API_KEY=<your key>
+PRANA_LLM_MODEL=claude-sonnet-5-5
+PRANA_LLM_REWORD=1
+```
+You also need `pip install anthropic`. Get a key at **console.anthropic.com** (sign in, add a small amount of credit, then **API keys → Create key**). Free-tier alternatives (Groq, Gemini) use the OpenAI-style settings above and may reword well enough; check them with the same 7-question test below.
+
+**How wording is delivered.** The rule-built answer appears at once. If rewording is on, a small "✦ Polishing the wording…" line shows, the model works in the background, and if its version passes every check it replaces the answer a few seconds later with the label "Wording by AI". If the model is slow, busy or rejected, the original simply stays. The answer is held on the server under a one-time token that only that patient can use, so nobody can send their own text to be reworded.
+
+**Measured with a free Google Gemini key** (`gemini-3.5-flash`, 7 real answers): 5 of 7 were reworded and passed every check, and the rewordings read naturally and kept every fact. The other two were kept as the original (one timed out, one changed the date format, which the checks rightly refuse). Each reworded answer took 8 to 18 seconds, which is why it runs in the background. On the free tier, `gemini-3.8-flash` often answered "busy" (503) and a burst of calls hit the rate limit (429), so use `gemini-3.5-flash` and expect occasional fallbacks. Failed or busy calls are retried twice, then the original answer is used.
+
+**Privacy.** Rewording sends the answer text, which contains the patient's numbers, to the provider. The project data is practice data, but for real patients you would need consent and a provider agreement first. Leave `PRANA_LLM_REWORD` off if that has not been agreed.
+
+**Measure it before you rely on it.** With your model configured, ask Prana seven different questions and count how many answers show the "Wording by AI" label (the rest were kept as the original because a check failed). A good model should pass most of them.
+
 ## Rewording is off by default: here is why
 I tried rewording with the local `llama3.2` model. On an ordinary CPU it added 10 to 20 seconds to every answer, and in one case it wrote "Here's a rewritten version of the answer..." and dropped part of the content. The checks now reject chatter and answers that lose content, but a small model still adds delay for little gain, so rewording stays off. Question matching is the useful part: it only runs when the rules do not understand the wording, and takes about 2 to 8 seconds.
 
